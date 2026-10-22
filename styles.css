@@ -1,0 +1,24 @@
+:root {
+  --course-ink: #183153;
+  --course-accent: #087f8c;
+}
+
+.navbar {
+  border-bottom: 3px solid var(--course-accent);
+}
+
+h1, h2, h3 {
+  color: var(--course-ink);
+}
+
+a {
+  color: #076a76;
+}
+
+.quarto-title-block .subtitle {
+  color: #52657a;
+}
+
+table {
+  font-size: 0.95rem;
+}

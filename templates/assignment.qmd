@@ -1,0 +1,53 @@
+---
+title: "Assignment 01 · Topic title"
+subtitle: "Course assignment submission"
+author: "PHAL Menghak"
+date: today
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-fold: show
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview and problem statement
+
+- **Source:** State the assignment handout, chapter, or problem sheet.
+- **Collaborators:** Mention any permitted collaboration or list "Independent work".
+- **Due date:** Submission deadline.
+
+## Part 1: Theory and derivations
+
+### Question 1.1
+
+State the problem clearly.
+
+### Mathematical solution
+
+Present equations using Quarto LaTeX math notation ($...$ and $$...$$).
+
+## Part 2: Empirical analysis and simulation in R
+
+### Question 2.1
+
+```{r}
+#| label: setup-assignment
+# Reproducible seed for random simulations
+set.seed(42)
+```
+
+### Interpretation
+
+Provide evidence-based interpretations connecting the R output back to theoretical concepts.
+
+## Summary and conclusions
+
+Briefly summarize the findings.
+
+## References
+
+List reference textbooks, lecture notes, or external papers.
