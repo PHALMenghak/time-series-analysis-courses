@@ -1,6 +1,11 @@
 # I5TSA · Time Series Analysis with R
 
-A Quarto website and working template for practicals (TP) and assignments in Time Series Analysis. The source files are editable `.qmd` notebooks; Quarto runs their R code and builds a browsable site.
+[![Render and publish Quarto site](https://github.com/PHALMenghak/time-series-analysis-courses/actions/workflows/publish.yml/badge.svg)](https://github.com/PHALMenghak/time-series-analysis-courses/actions/workflows/publish.yml)
+[![Live Site](https://img.shields.io/badge/Website-GitHub%20Pages-2ea44f?logo=github)](https://phalmenghak.github.io/time-series-analysis-courses/)
+
+🌐 **Live Website:** [https://phalmenghak.github.io/time-series-analysis-courses/](https://phalmenghak.github.io/time-series-analysis-courses/)
+
+A Quarto website and working template for practicals (TP), course practice, and assignments in Time Series Analysis. The source files are editable `.qmd` notebooks; Quarto runs their R code and builds a browsable site.
 
 ## Quick start
 
