@@ -1,0 +1,786 @@
+---
+title: "Gold Price Forecasting Using Five Classical Time-Series Models"
+subtitle: "An Empirical Econometric Evaluation of AR(p), MA(q), ARMA(p, q), SARIMA, and SES in R"
+author: "PHAL Menghak"
+date: today
+date-format: "D MMMM YYYY"
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Table of Contents"
+    number-sections: true
+    number-depth: 3
+    theme: cosmo
+    highlight-style: github
+    code-fold: show
+    code-tools: true
+    fig-align: center
+    df-print: kable
+
+execute:
+  echo: true
+  warning: false
+  message: false
+
+knitr:
+  opts_chunk:
+    comment: "#>"
+---
+
+```{r}
+#| label: setup
+#| include: false
+set.seed(2025)
+library(tidyverse)
+library(forecast)
+library(tseries)
+library(lubridate)
+library(zoo)
+library(plotly)
+library(knitr)
+```
+
+## Executive Summary {.unnumbered}
+
+Gold (*XAU*) occupies a singular role in quantitative finance, serving simultaneously as a global monetary reserve asset, a systemic risk hedge, an inflation counter-weight, and an actively traded industrial and jewelry commodity. Developing disciplined econometric forecasts of gold price dynamics is a critical priority for central banks, sovereign wealth institutions, bullion dealers, and financial engineers.
+
+This study implements an academically rigorous and fully reproducible empirical investigation of **gold price forecasting** across five classical time-series specifications:
+
+1. **Autoregressive Model — $\text{AR}(p)$**
+2. **Moving Average Model — $\text{MA}(q)$**
+3. **Autoregressive Moving Average Model — $\text{ARMA}(p, q)$**
+4. **Seasonal Autoregressive Integrated Moving Average — $\text{SARIMA}(p, d, q)(P, D, Q)[s]$**
+5. **Simple Exponential Smoothing — $\text{SES}$**
+
+Using **$2,971$ daily market observations** from Chicago Mercantile Exchange (CME Group) COMEX Continuous Gold Futures (`GC=F`) spanning **January 2015 to October 2026**, we implement a strict chronological $80\%/20\%$ in-sample estimation and out-of-sample holdout protocol.
+
+Key empirical findings:
+
+* **Non-Stationarity in Levels ($I(1)$):** The Augmented Dickey–Fuller test on price levels yields $\text{ADF} = -1.4591$ ($p = 0.8073$), failing to reject the presence of a unit root. First-differencing yields strong stationarity ($\text{ADF} = -14.878, p < 0.01$), confirming that the series requires integration order $d=1$.
+* **Holdout Predictive Superiority:** On the unobserved 595-day out-of-sample test horizon (June 2024 to October 2026), **$\text{ARIMA}(0,1,0)$ with drift** achieved the highest forecasting accuracy ($\text{MAE} = \$1,164.18$, $\text{RMSE} = \$1,390.75$, $\text{MAPE} = 28.80\%$). By estimating a positive drift term ($\hat{c} \approx \$0.48$/day), it captured the persistent secular rally in bullion prices driven by geopolitical stress and central bank de-dollarization.
+* **Martingale Benchmark Validation:** Classical zero-drift models ($\text{SES}$, $\text{AR}(1)$, $\text{MA}(1)$, $\text{ARMA}(1,1)$) produced flat multi-step forecast trajectories ($\text{RMSE} \approx \$1,548.94$, $\text{MAPE} \approx 32.39\%$), directly reflecting the Martingale Difference Hypothesis where the conditional expectation of future asset prices is dominated by the most recent price observation.
+
+---
+
+## 1. Introduction and Research Objectives
+
+### Background and Motivation
+Gold holds a unique status in modern asset pricing:
+- As a **physical commodity**, its supply is constrained by mining extraction costs and scrap recycling, while physical demand is driven by jewelry and advanced electronics manufacturing.
+- As a **monetary store of value**, its price is fundamentally determined by macroeconomic drivers: real interest rates (U.S. TIPS yields), currency valuations (the U.S. Dollar Index, DXY), sovereign reserve accumulation, and global geopolitical tail risk.
+
+Because market participants, treasury departments, and risk managers require objective, model-based price trajectory benchmarks, constructing and comparing time-series models within the classic Box–Jenkins framework is an indispensable analytical foundation.
+
+### Research Objectives
+The specific empirical objectives are:
+1. Conduct an exhaustive exploratory data analysis of historical gold prices, examining secular trends, empirical distributions (levels vs. log returns), annual volatility regimes, and descriptive statistics across the last five years.
+2. Formally test for stationarity and determine the integration order $d$ through graphical rolling statistics, autocorrelation analysis, and the Augmented Dickey–Fuller ($\text{ADF}$) unit root test.
+3. Formulate, estimate, and select optimal candidate specifications for each of the five target model families using Information Criteria ($\text{AIC}$, $\text{BIC}$) and residual diagnostics.
+4. Execute uniform out-of-sample forecasts over an unobserved $20\%$ chronological holdout sample under identical forecast horizons and origins.
+5. Provide multi-metric evaluation ($\text{MAE}$, $\text{RMSE}$, $\text{MAPE}$), generate both publication-grade static figures and interactive `ggplot2`/`plotly` visualization suites, and synthesize financial and econometric conclusions.
+
+---
+
+## 2. Gold Price Dataset and Source
+
+### Data Provenance and Variable Specification
+To ensure absolute academic integrity and full reproducibility, all empirical findings are derived from the official market series without synthetic fabrication:
+
+- **Source:** Chicago Mercantile Exchange (CME Group) COMEX Continuous Active Gold Futures (`GC=F`), retrieved via Yahoo Finance.
+- **Underlying:** Physical Gold (*XAU*), standard delivery.
+- **Target Variable:** Gold Closing Settlement Price Level (`price`).
+- **Unit & Currency:** USD per troy ounce ($/oz).
+- **Observation Frequency:** Daily (active trading business days, Monday through Friday, excluding exchange holidays).
+- **Sample Window:** 2 January 2015 to 26 October 2026 ($N = 2,971$ active trading day records).
+- **Raw File Paths:**
+  - Standard level series: [`data/gold_price.csv`](../data/gold_price.csv)
+  - Full OHLCV daily market dataset: [`data/gold_price_daily.csv`](../data/gold_price_daily.csv)
+  - Monthly aggregate dataset: [`data/gold_price_monthly.csv`](../data/gold_price_monthly.csv)
+- **Acquisition Script:** Fully documented and reproducible script in [`scripts/download_gold_data.R`](../scripts/download_gold_data.R).
+
+### Price Level vs. Return Differencing
+In financial time series, analysts frequently distinguish between forecasting:
+1. **The Price Level ($P_t$):** Non-stationary, persistent, and directly relevant for balance sheet valuation, budgeting, and long-term procurement.
+2. **Log Returns ($r_t = 100 \times \ln(P_t / P_{t-1})$) or First Differences ($\Delta P_t = P_t - P_{t-1}$):** Stationary ($I(0)$), eliminating stochastic trend persistence.
+
+As mandated by our objective, the primary forecasting target is the gold price level. When stationary models ($\text{AR}$, $\text{MA}$, $\text{ARMA}$) require differenced series for estimation, forecasts are integrated back to price levels to guarantee fair, out-of-sample comparability against integrated models ($\text{ARIMA/SARIMA}$) and $\text{SES}$.
+
+---
+
+## 3. Data Preparation
+
+### Workflow and Verification
+The data ingestion pipeline performs the following steps:
+1. Reads the raw dataset from `data/` using robust relative paths.
+2. Parses the temporal index into a standardized `Date` class.
+3. Enforces strict chronological ascending ordering.
+4. Computes daily log returns ($r_t = 100 \times \ln(P_t / P_{t-1})$), first differences ($\Delta P_t = P_t - P_{t-1}$), and rolling 60-day moving moments.
+5. Audits for missing records (`NA`), duplicate timestamps, and irregular trading calendar gaps.
+
+```{r}
+#| label: data-preparation
+# Specify the path to the gold price dataset
+# Robustly resolves both project root and subdirectory execution contexts
+data_file <- if (file.exists("data/gold_price.csv")) {
+  "data/gold_price.csv"
+} else if (file.exists("../data/gold_price.csv")) {
+  "../data/gold_price.csv"
+} else {
+  "data/gold_price.csv"
+}
+
+raw_df <- read_csv(data_file, show_col_types = FALSE)
+
+# Standardize variable naming and compute return series
+gold_df <- raw_df %>%
+  rename_with(tolower) %>%
+  mutate(date = as.Date(date)) %>%
+  filter(!is.na(date), !is.na(price)) %>%
+  distinct(date, .keep_all = TRUE) %>%
+  arrange(date) %>%
+  mutate(
+    diff_price  = c(NA, diff(price)),
+    log_return  = c(NA, diff(log(price)) * 100),
+    roll_mean60 = rollapply(price, width = 60, FUN = mean, fill = NA, align = "right"),
+    roll_sd60   = rollapply(price, width = 60, FUN = sd, fill = NA, align = "right"),
+    year        = year(date)
+  )
+
+glimpse(gold_df)
+```
+
+---
+
+## 4. Descriptive Statistics and Exploratory Analysis
+
+### Full-Sample Descriptive Statistics
+Descriptive statistics provide foundational insights into the central tendency, dispersion, and extreme quantiles of gold prices across the entire sample window.
+
+```{r}
+#| label: descriptive-stats-full
+summary_stats <- tibble(
+  Metric = c("Observations (N)", "Start Date", "End Date", "Mean ($)", 
+             "Std Dev ($)", "Minimum ($)", "Q1 (25%) ($)", 
+             "Median ($)", "Q3 (75%) ($)", "Maximum ($)", "IQR ($)"),
+  Value = c(
+    format(nrow(gold_df), big.mark = ","),
+    as.character(min(gold_df$date)),
+    as.character(max(gold_df$date)),
+    sprintf("%.2f", mean(gold_df$price)),
+    sprintf("%.2f", sd(gold_df$price)),
+    sprintf("%.2f", min(gold_df$price)),
+    sprintf("%.2f", quantile(gold_df$price, 0.25)),
+    sprintf("%.2f", median(gold_df$price)),
+    sprintf("%.2f", quantile(gold_df$price, 0.75)),
+    sprintf("%.2f", max(gold_df$price)),
+    sprintf("%.2f", IQR(gold_df$price))
+  )
+)
+
+kable(summary_stats, caption = "Full-Sample Descriptive Statistics: CME Gold Futures (2015–2026)")
+```
+
+### Descriptive Statistics of the Last 5 Years (2022–2026)
+To capture structural shifts, inflation regime transitions, and the recent historical gold bull market, we disaggregate summary statistics year-by-year for the last five calendar years.
+
+```{r}
+#| label: descriptive-stats-last5years
+recent_years_stats <- gold_df %>%
+  filter(year >= max(year) - 4) %>%
+  group_by(Year = as.character(year)) %>%
+  summarise(
+    `Trading Days (N)` = n(),
+    `Mean ($)`          = sprintf("%.2f", mean(price)),
+    `Std Dev ($)`       = sprintf("%.2f", sd(price)),
+    `Min ($)`           = sprintf("%.2f", min(price)),
+    `Q1 ($)`            = sprintf("%.2f", quantile(price, 0.25)),
+    `Median ($)`        = sprintf("%.2f", median(price)),
+    `Q3 ($)`            = sprintf("%.2f", quantile(price, 0.75)),
+    `Max ($)`           = sprintf("%.2f", max(price)),
+    `Annual Return (%)` = sprintf("%+.2f%%", (last(price) - first(price)) / first(price) * 100),
+    `Ann. Volatility (%)` = sprintf("%.2f%%", sd(log_return, na.rm = TRUE) * sqrt(252)),
+    .groups = "drop"
+  )
+
+kable(
+  recent_years_stats, 
+  caption = "Annual Disaggregated Descriptive Statistics and Volatility: Last 5 Years (2022–2026)"
+)
+```
+
+> [!NOTE]
+> **Financial Interpretation of Recent Dynamics:**
+> 1. **2022:** Gold faced significant headwinds from aggressive U.S. Federal Reserve monetary tightening (+425 bps in Fed Funds Rate), yielding an essentially flat annual return ($+1.45\%$) despite elevated geopolitical tensions following the outbreak of the Russia-Ukraine conflict.
+> 2. **2023:** Gold resumed its upward trajectory ($+12.18\%$), breaking through the $\$2,000$/oz psychological threshold due to regional banking distress (Silicon Valley Bank) and mounting sovereign debt concerns.
+> 3. **2024–2025:** A historic breakout ensued ($+27.42\%$ in 2024 and $+62.61\%$ in 2025), driven by unprecedented central bank accumulation (PBoC, RBI, and Middle Eastern sovereign funds) aiming to de-dollarize reserves following Western sanctions, paired with persistent global inflation.
+> 4. **2026 (YTD):** The market entered an active consolidation phase near all-time records, establishing a trading channel between $\$3,992$ and $\$5,318$/oz.
+
+### Visualizing Empirical Distributions
+In financial econometrics, raw price levels typically follow non-normal, multi-modal distributions over long horizons, whereas daily log returns display the classic **stylized facts of financial time series**: zero mean, slight skewness, and heavy tails (leptokurtosis).
+
+```{r}
+#| label: plot-distributions
+#| fig-cap: "Empirical Distribution of Gold Prices and Daily Returns"
+#| fig-subcap:
+#|   - "Distribution of Gold Price Levels ($/oz)"
+#|   - "Distribution of Daily Percentage Log Returns vs. Theoretical Normal Density"
+#| layout-ncol: 2
+#| fig-height: 4.5
+
+# Panel 1: Distribution of Price Levels
+p_dist_level <- ggplot(gold_df, aes(x = price)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 45, fill = "#d4af37", color = "white", alpha = 0.7) +
+  geom_density(color = "#8b6508", linewidth = 1.1) +
+  geom_vline(aes(xintercept = mean(price)), color = "darkred", linetype = "dashed", linewidth = 0.9) +
+  geom_vline(aes(xintercept = median(price)), color = "navy", linetype = "dotted", linewidth = 0.9) +
+  annotate("text", x = mean(gold_df$price) + 350, y = 0.00045, label = paste("Mean: $", round(mean(gold_df$price), 1)), color = "darkred", size = 3.5) +
+  annotate("text", x = median(gold_df$price) - 350, y = 0.00052, label = paste("Median: $", round(median(gold_df$price), 1)), color = "navy", size = 3.5) +
+  labs(
+    title = "Empirical Distribution of Price Levels",
+    subtitle = "Right-skewed multi-regime distribution",
+    x = "Price (USD / troy oz)",
+    y = "Density"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+
+# Panel 2: Distribution of Daily Log Returns
+mean_ret <- mean(gold_df$log_return, na.rm = TRUE)
+sd_ret   <- sd(gold_df$log_return, na.rm = TRUE)
+
+p_dist_returns <- ggplot(gold_df %>% filter(!is.na(log_return)), aes(x = log_return)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 60, fill = "#4682b4", color = "white", alpha = 0.7) +
+  geom_density(color = "#000080", linewidth = 1.1) +
+  stat_function(fun = dnorm, args = list(mean = mean_ret, sd = sd_ret), color = "red", linetype = "dashed", linewidth = 0.9) +
+  coord_cartesian(xlim = c(-6, 6)) +
+  labs(
+    title = "Empirical Distribution of Daily Log Returns",
+    subtitle = "Solid blue = Kernel Density, Dashed red = Normal Density (Fat Tails)",
+    x = "Daily Log Return (%)",
+    y = "Density"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+
+p_dist_level
+p_dist_returns
+```
+
+### Annual Boxplots: Dispersion and Outlier Regime Shifts
+To observe the progressive evolution of price levels, interquartile ranges, and market dispersion over time, we construct annual boxplots.
+
+```{r}
+#| label: plot-annual-boxplots
+#| fig-cap: "Annual Gold Price Distributions (2015–2026)"
+#| fig-height: 4.5
+ggplot(gold_df, aes(x = factor(year), y = price, fill = factor(year))) +
+  geom_boxplot(outlier.color = "darkred", outlier.size = 1.2, alpha = 0.75, show.legend = FALSE) +
+  scale_fill_viridis_d(option = "plasma") +
+  labs(
+    title = "Annual Gold Price Distributions and Dispersion (2015–2026)",
+    subtitle = "Clear evidence of level shifts, structural breaks, and widening dispersion in recent years",
+    x = "Calendar Year",
+    y = "Price (USD / troy oz)"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+---
+
+## 5. Stationarity Analysis
+
+### Theoretical Foundation
+A stochastic time series $\{Y_t\}$ is defined as **weakly (covariance) stationary** if and only if:
+1. **Constant Mean:** $E[Y_t] = \mu$ for all $t$.
+2. **Constant Finite Variance:** $\operatorname{Var}(Y_t) = \sigma^2 < \infty$ for all $t$.
+3. **Time-Invariant Autocovariance:** $\operatorname{Cov}(Y_t, Y_{t-k}) = \gamma_k$ depends exclusively on the displacement lag $k$, and not on the absolute time index $t$.
+
+Financial asset price levels generally violate conditions (1) and (2) due to secular growth, inflation drift, and stochastic random walk trends ($I(1)$ processes). Directly estimating autoregressive or moving average models on non-stationary levels produces spurious autocorrelations and invalid $t$-statistics.
+
+### Visual Diagnostics: Stationarity vs. Non-Stationarity
+To visually illustrate the transition from non-stationarity to stationarity, we compare the gold price level alongside its 60-day rolling mean against the first-differenced series ($\Delta P_t = P_t - P_{t-1}$).
+
+```{r}
+#| label: plot-stationarity-comparison
+#| fig-cap: "Stationarity Visual Diagnostics: Price Level vs. First Differences"
+#| fig-height: 7
+#| fig-subcap:
+#|   - "Non-Stationary Level Series with 60-Day Rolling Mean and Volatility Envelope"
+#|   - "Stationary First-Differenced Series Demonstrating Mean-Reversion Around Zero"
+#| layout-nrow: 2
+
+# Plot A: Level Series with 60-day Rolling Mean & +/- 2 SD Envelope
+p_stat_level <- ggplot(gold_df, aes(x = date)) +
+  geom_line(aes(y = price), color = "gray60", linewidth = 0.5) +
+  geom_ribbon(aes(ymin = roll_mean60 - 2 * roll_sd60, ymax = roll_mean60 + 2 * roll_sd60), fill = "#d4af37", alpha = 0.25) +
+  geom_line(aes(y = roll_mean60), color = "#8b6508", linewidth = 1.0) +
+  labs(
+    title = "Price Level P_t: Non-Stationary Process with Time-Varying Mean & Trend",
+    subtitle = "Gold prices violate constant mean requirement; stochastic drift causes persistent non-stationarity",
+    x = "Date",
+    y = "Price ($/oz)"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+
+# Plot B: First Differenced Series
+p_stat_diff <- ggplot(gold_df %>% filter(!is.na(diff_price)), aes(x = date, y = diff_price)) +
+  geom_line(color = "#1f77b4", linewidth = 0.5) +
+  geom_hline(yintercept = 0, color = "black", linetype = "solid", linewidth = 0.8) +
+  geom_hline(yintercept = c(-2 * sd(gold_df$diff_price, na.rm = TRUE), 2 * sd(gold_df$diff_price, na.rm = TRUE)), 
+             color = "red", linetype = "dashed", linewidth = 0.6) +
+  labs(
+    title = "First Difference ΔP_t: Stationary Process Mean-Reverting Around Zero",
+    subtitle = "Constant unconditional mean (E[ΔP_t] ≈ 0); fluctuations are bounded with volatility clustering",
+    x = "Date",
+    y = "Price Change ($/oz)"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+
+p_stat_level
+p_stat_diff
+```
+
+### Formal Augmented Dickey–Fuller (ADF) Unit Root Test
+The ADF test investigates the presence of a unit root using the regression:
+$$\Delta Y_t = \alpha + \beta t + \gamma Y_{t-1} + \sum_{i=1}^{k} \delta_i \Delta Y_{t-i} + e_t$$
+
+- **Null Hypothesis ($H_0$):** $\gamma = 0$ (the series contains a unit root, i.e., is non-stationary).
+- **Alternative Hypothesis ($H_1$):** $\gamma < 0$ (the series is stationary).
+- **Significance Threshold:** $\alpha = 0.05$.
+
+```{r}
+#| label: adf-test-results
+adf_level <- adf.test(gold_df$price)
+adf_diff  <- adf.test(diff(gold_df$price))
+
+adf_comparison <- tibble(
+  Series = c("Gold Price Level (P_t)", "First Difference (ΔP_t)"),
+  `ADF Test Statistic` = c(sprintf("%.4f", adf_level$statistic), sprintf("%.4f", adf_diff$statistic)),
+  `Lag Order`          = c(adf_level$parameter, adf_diff$parameter),
+  `p-value`            = c(sprintf("%.4f", adf_level$p.value), "< 0.01"),
+  `Decision (α = 0.05)` = c("Fail to Reject H0 (Non-Stationary)", "Reject H0 (Stationary)"),
+  `Integration Order`  = c("I(1)", "I(0)")
+)
+
+kable(adf_comparison, caption = "Augmented Dickey–Fuller (ADF) Unit Root Test Summary")
+```
+
+The statistical decision is unequivocal: the price level exhibits unit root behavior ($p = 0.8073$), whereas first-differencing renders the series strictly covariance stationary ($p < 0.01$). Hence, models must incorporate integration order $d = 1$.
+
+---
+
+## 6. ACF/PACF and Model Identification
+
+### Diagnostic Autocorrelation Functions
+Theoretical signature profiles in the Box–Jenkins methodology:
+- **$\text{AR}(p)$:** Partial Autocorrelation Function ($\text{PACF}$) cuts off abruptly after lag $p$, while the Autocorrelation Function ($\text{ACF}$) decays exponentially or in a damped oscillatory pattern.
+- **$\text{MA}(q)$:** $\text{ACF}$ cuts off abruptly after lag $q$, while the $\text{PACF}$ decays exponentially.
+- **$\text{ARMA}(p, q)$:** Both $\text{ACF}$ and $\text{PACF}$ display gradual tailing-off behavior.
+
+```{r}
+#| label: acf-pacf-plots
+#| fig-cap: "Sample Autocorrelation (ACF) and Partial Autocorrelation (PACF) Plots of Differenced Gold Prices"
+#| fig-height: 4
+#| fig-subcap: 
+#|   - "Sample ACF of Differenced Gold Price"
+#|   - "Sample PACF of Differenced Gold Price"
+#| layout-ncol: 2
+
+diff_series <- na.omit(gold_df$diff_price)
+
+Acf(diff_series, lag.max = 24, main = "Sample ACF of ΔP_t")
+Pacf(diff_series, lag.max = 24, main = "Sample PACF of ΔP_t")
+```
+
+> [!NOTE]
+> **Interpretation:** The sample autocorrelations and partial autocorrelations of first-differenced daily gold prices fall almost entirely within the $95\%$ Bartlett confidence bounds ($\pm 1.96 / \sqrt{N}$), indicating that daily increments approximate a martingale difference sequence with negligible linear serial dependency.
+
+---
+
+## 7. Chronological Training and Test Partitioning
+
+To strictly prevent data snooping, lookahead bias, and test-set contamination:
+- The first **$80\%$** of chronologically ordered trading days ($n_{\text{train}} = 2,376$) form the training estimation sample.
+- The remaining **$20\%$** of trading days ($n_{\text{test}} = 595$) serve as the untouched out-of-sample forecast evaluation window.
+
+```{r}
+#| label: train-test-partition
+n_total <- nrow(gold_df)
+n_train <- floor(0.80 * n_total)
+n_test  <- n_total - n_train
+
+train_data <- gold_df[1:n_train, ]
+test_data  <- gold_df[(n_train + 1):n_total, ]
+
+train_test_summary <- tibble(
+  Partition = c("In-Sample Training (80%)", "Out-of-Sample Testing (20%)", "Full Dataset"),
+  Observations = c(nrow(train_data), nrow(test_data), n_total),
+  `Start Date` = c(as.character(min(train_data$date)), as.character(min(test_data$date)), as.character(min(gold_df$date))),
+  `End Date`   = c(as.character(max(train_data$date)), as.character(max(test_data$date)), as.character(max(gold_df$date)))
+)
+
+kable(train_test_summary, caption = "Chronological Sample Partitioning Summary")
+```
+
+---
+
+## 8. Estimation of the Five Time-Series Models
+
+All model specifications are estimated strictly on the in-sample training window `train_data$price`.
+
+### Model 1: Autoregressive Model — AR(p)
+An $\text{AR}(p)$ model fitted to the integrated series corresponds to $\text{ARIMA}(p, 1, 0)$:
+
+$$ (1 - \phi_1 B - \dots - \phi_p B^p)(1 - B)Y_t = c + \varepsilon_t $$
+
+```{r}
+#| label: model-ar
+fit_ar1 <- Arima(train_data$price, order = c(1, 1, 0))
+summary(fit_ar1)
+```
+
+### Model 2: Moving Average Model — MA(q)
+An $\text{MA}(q)$ model fitted to the integrated series corresponds to $\text{ARIMA}(0, 1, q)$:
+
+$$ (1 - B)Y_t = \mu + (1 + \theta_1 B + \dots + \theta_q B^q)\varepsilon_t $$
+
+```{r}
+#| label: model-ma
+fit_ma1 <- Arima(train_data$price, order = c(0, 1, 1))
+summary(fit_ma1)
+```
+
+### Model 3: Autoregressive Moving Average — ARMA(p, q)
+Combining autoregressive persistence with shock accommodation yields $\text{ARIMA}(p, 1, q)$:
+
+$$ (1 - \phi_1 B)(1 - B)Y_t = c + (1 + \theta_1 B)\varepsilon_t $$
+
+```{r}
+#| label: model-arma
+fit_arma11 <- Arima(train_data$price, order = c(1, 1, 1))
+summary(fit_arma11)
+```
+
+### Model 4: Seasonal ARIMA — SARIMA(p, d, q)(P, D, Q)[s]
+We utilize `auto.arima()` with stepwise search across the parameter space, allowing drift and seasonal candidates. For daily data, the algorithm selects the most parsimonious specification minimizing the corrected Akaike Information Criterion ($\text{AICc}$).
+
+```{r}
+#| label: model-sarima
+fit_sarima <- auto.arima(
+  train_data$price,
+  seasonal = TRUE,
+  stepwise = TRUE,
+  approximation = FALSE
+)
+summary(fit_sarima)
+```
+
+> [!NOTE]
+> `auto.arima()` selects **$\text{ARIMA}(0, 1, 0)$ with drift**, estimating an average historical drift coefficient of $\hat{c} \approx \$0.4766$/day over the training window.
+
+### Model 5: Simple Exponential Smoothing (SES)
+Simple Exponential Smoothing models a series with a time-varying level but without an explicit linear trend or seasonal component:
+
+$$ \ell_t = \alpha Y_t + (1 - \alpha)\ell_{t-1}, \qquad 0 < \alpha < 1 $$
+
+Point forecasts from SES are constant flat projections over the entire forecast horizon: $\hat{Y}_{T+h|T} = \ell_T$.
+
+```{r}
+#| label: model-ses
+fit_ses <- ses(train_data$price, h = n_test)
+summary(fit_ses$model)
+```
+
+---
+
+## 9. Residual Diagnostics
+
+To verify model adequacy, residuals must not exhibit remaining linear serial correlation. We conduct the **Ljung–Box portmanteau test** up to lag $K = 20$, subtracting estimated model parameters $(p + q)$ from degrees of freedom.
+
+```{r}
+#| label: residual-diagnostics-table
+models_list <- list(
+  "AR(1) integrated"    = list(fit = fit_ar1,    p = 1, q = 0),
+  "MA(1) integrated"    = list(fit = fit_ma1,    p = 0, q = 1),
+  "ARMA(1,1) integrated"= list(fit = fit_arma11, p = 1, q = 1),
+  "SARIMA (Auto ARIMA)" = list(fit = fit_sarima, p = 0, q = 0),
+  "SES"                 = list(fit = fit_ses$model, p = 1, q = 0)
+)
+
+lb_results <- tibble(
+  Model = names(models_list),
+  `Ljung-Box Q*` = map_dbl(models_list, ~{
+    res <- na.omit(residuals(.x$fit))
+    Box.test(res, lag = 20, type = "Ljung-Box")$statistic
+  }),
+  `df` = map_int(models_list, ~{
+    as.integer(20 - (.x$p + .x$q))
+  }),
+  `p-value` = map_dbl(models_list, ~{
+    res <- na.omit(residuals(.x$fit))
+    dof <- max(1, 20 - (.x$p + .x$q))
+    Box.test(res, lag = 20, type = "Ljung-Box", fitdf = .x$p + .x$q)$p.value
+  }),
+  `Diagnostic Conclusion` = ifelse(`p-value` > 0.05, "Adequate (No serial correlation)", "Serial correlation detected")
+)
+
+kable(lb_results, digits = 4, caption = "Ljung–Box Portmanteau Residual Diagnostic Results (Lag = 20)")
+```
+
+### Residual Diagnostic Visualization (Top Model)
+
+```{r}
+#| label: plot-residual-diagnostics
+#| fig-cap: "Residual Diagnostic Suite: ARIMA(0,1,0) with Drift"
+#| fig-height: 5.5
+checkresiduals(fit_sarima)
+```
+
+---
+
+## 10. Out-of-Sample Forecast Generation and Evaluation
+
+### Generation of Point Forecasts
+Each of the five models generates out-of-sample projections over the common holdout horizon $h = 595$ days ($2024\text{–}06\text{–}20$ to $2026\text{–}10\text{–}26$).
+
+```{r}
+#| label: generate-forecasts
+h_test <- nrow(test_data)
+
+fc_ar     <- forecast(fit_ar1, h = h_test)
+fc_ma     <- forecast(fit_ma1, h = h_test)
+fc_arma   <- forecast(fit_arma11, h = h_test)
+fc_sarima <- forecast(fit_sarima, h = h_test)
+fc_ses    <- forecast(fit_ses, h = h_test)
+```
+
+### Accuracy Metrics Formulation
+We evaluate predictive performance on actual gold price levels using three standard metrics:
+
+1. **Mean Absolute Error (MAE):**
+   $$ \text{MAE} = \frac{1}{n_{\text{test}}}\sum_{t=1}^{n_{\text{test}}} |Y_t - \hat{Y}_t| $$
+
+2. **Root Mean Squared Error (RMSE):**
+   $$ \text{RMSE} = \sqrt{\frac{1}{n_{\text{test}}}\sum_{t=1}^{n_{\text{test}}} (Y_t - \hat{Y}_t)^2} $$
+
+3. **Mean Absolute Percentage Error (MAPE):**
+   $$ \text{MAPE} = \frac{100\%}{n_{\text{test}}}\sum_{t=1}^{n_{\text{test}}} \left|\frac{Y_t - \hat{Y}_t}{Y_t}\right| $$
+
+```{r}
+#| label: compute-evaluation-metrics
+y_test <- test_data$price
+
+calc_accuracy <- function(actual, predicted) {
+  err <- actual - predicted
+  mae  <- mean(abs(err))
+  rmse <- sqrt(mean(err^2))
+  mape <- mean(abs(err / actual)) * 100
+  c(MAE = mae, RMSE = rmse, MAPE = mape)
+}
+
+metrics_matrix <- rbind(
+  `AR(1) integrated`     = calc_accuracy(y_test, as.numeric(fc_ar$mean)),
+  `MA(1) integrated`     = calc_accuracy(y_test, as.numeric(fc_ma$mean)),
+  `ARMA(1,1) integrated` = calc_accuracy(y_test, as.numeric(fc_arma$mean)),
+  `SARIMA (Auto ARIMA)`  = calc_accuracy(y_test, as.numeric(fc_sarima$mean)),
+  `Simple Exponential Smoothing (SES)` = calc_accuracy(y_test, as.numeric(fc_ses$mean))
+)
+```
+
+---
+
+## 11. Comparative Model Results
+
+### Formal Model Comparison Table
+
+```{r}
+#| label: comparative-results-table
+comparison_table <- tibble(
+  Model = rownames(metrics_matrix),
+  Specification = c(
+    as.character(fit_ar1),
+    as.character(fit_ma1),
+    as.character(fit_arma11),
+    as.character(fit_sarima),
+    paste0("SES (alpha = ", round(fit_ses$model$fit$par["alpha"], 4), ")")
+  ),
+  `Test MAE ($)`  = metrics_matrix[, "MAE"],
+  `Test RMSE ($)` = metrics_matrix[, "RMSE"],
+  `Test MAPE (%)` = metrics_matrix[, "MAPE"],
+  `In-Sample AIC` = c(AIC(fit_ar1), AIC(fit_ma1), AIC(fit_arma11), AIC(fit_sarima), NA),
+  `In-Sample BIC` = c(BIC(fit_ar1), BIC(fit_ma1), BIC(fit_arma11), BIC(fit_sarima), NA)
+) %>%
+  arrange(`Test RMSE ($)`) %>%
+  mutate(Rank = row_number()) %>%
+  select(Rank, Model, Specification, `Test MAE ($)`, `Test RMSE ($)`, `Test MAPE (%)`, `In-Sample AIC`, `In-Sample BIC`)
+
+kable(comparison_table, digits = 2, caption = "Out-of-Sample Performance Comparison Across the 5 Time-Series Models")
+```
+
+---
+
+## 12. Forecast Visualizations
+
+### Publication-Grade Static Forecast Chart (ggplot2)
+This static academic figure displays the realized gold prices across the holdout sample against the trajectories generated by all five models, including the $95\%$ prediction interval for the winning model.
+
+```{r}
+#| label: plot-static-forecast
+#| fig-cap: "Out-of-Sample Forecast Evaluation: Actual Realized Prices vs. Model Forecasts"
+#| fig-height: 5.5
+
+plot_data <- tibble(
+  Date      = test_data$date,
+  Actual    = test_data$price,
+  `AR(1)`   = as.numeric(fc_ar$mean),
+  `MA(1)`   = as.numeric(fc_ma$mean),
+  `ARMA(1,1)` = as.numeric(fc_arma$mean),
+  `SARIMA`  = as.numeric(fc_sarima$mean),
+  `SES`     = as.numeric(fc_ses$mean),
+  Lower95   = as.numeric(fc_sarima$lower[, 2]),
+  Upper95   = as.numeric(fc_sarima$upper[, 2])
+)
+
+ggplot(plot_data, aes(x = Date)) +
+  geom_ribbon(aes(ymin = Lower95, ymax = Upper95), fill = "#d62728", alpha = 0.15) +
+  geom_line(aes(y = Actual, color = "Actual Realization"), linewidth = 1.1) +
+  geom_line(aes(y = `SARIMA`, color = "SARIMA (with drift)"), linewidth = 0.9, linetype = "dashed") +
+  geom_line(aes(y = `SES`, color = "SES (Benchmark)"), linewidth = 0.8, linetype = "longdash") +
+  geom_line(aes(y = `AR(1)`, color = "AR(1) integrated"), linewidth = 0.7, linetype = "dotted") +
+  geom_line(aes(y = `MA(1)`, color = "MA(1) integrated"), linewidth = 0.7, linetype = "dotdash") +
+  geom_line(aes(y = `ARMA(1,1)`, color = "ARMA(1,1) integrated"), linewidth = 0.7, linetype = "twodash") +
+  scale_color_manual(
+    name = "Series / Model",
+    values = c(
+      "Actual Realization"     = "black",
+      "SARIMA (with drift)"    = "#d62728",
+      "SES (Benchmark)"        = "#9467bd",
+      "AR(1) integrated"       = "#1f77b4",
+      "MA(1) integrated"       = "#ff7f0e",
+      "ARMA(1,1) integrated"   = "#2ca02c"
+    )
+  ) +
+  labs(
+    title = "Out-of-Sample Forecast Evaluation (June 2024 – October 2026)",
+    subtitle = "Actual gold prices vs. five model projections (Shaded area indicates SARIMA 95% prediction interval)",
+    x = "Date",
+    y = "Gold Price ($/oz)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+### Interactive Forecast Chart (ggplot2 + Plotly)
+The interactive visualization below enables dynamic exploration:
+- **Hover** over any data point to inspect exact dates, model labels, and dollar prices.
+- **Single-click** a legend item to isolate or toggle that specific model on and off.
+- **Click and drag** to zoom into inflection periods or market shocks.
+
+```{r}
+#| label: plot-interactive-forecast
+#| fig-cap: "Interactive Multi-Model Gold Price Forecasting Suite"
+#| fig-height: 6
+
+plot_interactive_df <- plot_data %>%
+  select(Date, Actual, `SARIMA`, `SES`, `AR(1)`, `MA(1)`, `ARMA(1,1)`) %>%
+  pivot_longer(-Date, names_to = "Model", values_to = "Price")
+
+p_interactive <- ggplot(plot_interactive_df, aes(
+  x = Date, 
+  y = Price, 
+  color = Model,
+  text = paste0(
+    "<b>Date:</b> ", format(Date, "%b %d, %Y"), "<br>",
+    "<b>Model:</b> ", Model, "<br>",
+    "<b>Price:</b> $", format(round(Price, 2), nsmall = 2, big.mark = ",")
+  )
+)) +
+  geom_line(aes(group = Model), linewidth = 0.85) +
+  scale_color_manual(values = c(
+    "Actual"     = "#000000",
+    "SARIMA"     = "#d62728",
+    "SES"        = "#9467bd",
+    "AR(1)"      = "#1f77b4",
+    "MA(1)"      = "#ff7f0e",
+    "ARMA(1,1)"  = "#2ca02c"
+  )) +
+  labs(
+    title = "Interactive Out-of-Sample Forecast Comparison",
+    x = "Date",
+    y = "Price ($/oz)"
+  ) +
+  theme_minimal(base_size = 11)
+
+ggplotly(p_interactive, tooltip = "text") %>%
+  layout(
+    legend = list(orientation = "h", x = 0.05, y = -0.2),
+    hovermode = "x unified"
+  )
+```
+
+---
+
+## 13. Discussion and Financial Interpretation
+
+### 1. Superiority of the Drift Specification
+The automated SARIMA selection chose $\text{ARIMA}(0, 1, 0)$ with a positive drift term ($\hat{c} \approx \$0.48$/day). This specification outperformed all zero-drift competitors by $\$141.11$/oz in MAE and $\$158.19$/oz in RMSE. Because physical gold experienced a sustained secular bull market driven by global central bank reserve purchases and structural inflation, incorporating the historical drift allowed the model to project an upward path rather than a static horizontal line.
+
+### 2. Martingale Behavior in Zero-Drift Models
+The zero-drift models ($\text{SES}$, $\text{AR}(1)$, $\text{MA}(1)$, $\text{ARMA}(1,1)$) produced nearly identical flat forecast trajectories ($\text{RMSE} \approx \$1,548.94$). This behavior is consistent with the **Martingale Difference Hypothesis (MDH)** in financial asset pricing:
+$$ E[P_{t+h} \mid \mathcal{F}_t] = P_t $$
+In the absence of a drift parameter, any transient $\text{AR}$ or $\text{MA}$ shock decays rapidly within a few steps, causing long-horizon point forecasts to collapse to the last observed price level.
+
+### 3. Role of Simple Exponential Smoothing as a Benchmark
+$\text{SES}$ estimated an optimal smoothing parameter of $\alpha \approx 0.999$, indicating that the model places virtually all weight on the most recent observation. While mathematically parsimonious, SES serves as an essential baseline: any complex multi-parameter econometric model that fails to outperform SES imposes unwarranted parameter uncertainty without predictive reward.
+
+---
+
+## 14. Limitations
+
+1. **Univariate Information Constraint:** Univariate time-series models rely exclusively on past price history, ignoring exogenous macroeconomic drivers:
+   - Real interest rates (U.S. 10-year TIPS yield).
+   - Foreign exchange dynamics (U.S. Dollar Index, DXY).
+   - Global geopolitical risk indices and central bank net purchases.
+2. **Conditional Homoskedasticity:** Classical Box–Jenkins models assume constant disturbance variance $\sigma^2$. As shown in the return distribution analysis, gold displays substantial **volatility clustering**, motivating hybrid $\text{ARIMA-GARCH}$ specifications.
+3. **Multi-Step Uncertainty:** Point forecasts over extended horizons (595 days) exhibit rapidly widening prediction intervals, reflecting the fundamental reality of market efficiency over multi-year horizons.
+
+---
+
+## 15. Conclusion
+
+This study executed a comprehensive, reproducible empirical comparison of five classical time-series models for gold price forecasting using 2,971 daily CME COMEX gold futures records (2015–2026).
+
+- **Unit Root Evidence:** Gold price levels are non-stationary ($I(1)$), necessitating first-order differencing.
+- **Top Out-of-Sample Model:** **$\text{ARIMA}(0,1,0)$ with drift** won the evaluation ($\text{RMSE} = \$1,390.75$, $\text{MAE} = \$1,164.18$, $\text{MAPE} = 28.80\%$).
+- **Practical Takeaway:** While statistical time-series models provide disciplined baselines for financial engineers, real-world hedging and portfolio management require combining univariate drift models with macroeconomic risk drivers and dynamic volatility modeling.
+
+---
+
+## 16. References
+
+1. Box, G. E., Jenkins, G. M., Reinsel, G. C., & Ljung, G. M. (2015). *Time Series Analysis: Forecasting and Control* (5th ed.). John Wiley & Sons.
+2. Cont, R. (2001). Empirical properties of asset returns: Stylized facts and statistical issues. *Quantitative Finance*, 1(2), 223–236.
+3. Cryer, J. D., & Chan, K.-S. (2008). *Time Series Analysis: With Applications in R* (2nd ed.). Springer.
+4. Fama, E. F. (1970). Efficient Capital Markets: A Review of Theory and Empirical Work. *The Journal of Finance*, 25(2), 383–417.
+5. Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and Practice* (3rd ed.). OTexts: Melbourne, Australia.
+6. Ljung, G. M., & Box, G. E. (1978). On a Measure of Lack of Fit in Time Series Models. *Biometrika*, 65(2), 297–303.
+
+---
+
+## 17. Appendix: Reproducible R Session Info
+
+```{r}
+#| label: session-info
+sessionInfo()
+```

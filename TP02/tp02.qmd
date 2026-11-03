@@ -1,56 +1,569 @@
 ---
-title: "TP 02 · Fundamental mathematical concepts"
-subtitle: "Stationarity, covariance, and differencing"
+title: "TD/TP 02 — Fundamental Mathematical Concepts"
+subtitle: "Stationarity, Autocovariance, and Differencing"
 author: "PHAL Menghak"
 date: today
+date-format: "D MMMM YYYY"
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    number-depth: 3
+    theme: cosmo
+    highlight-style: github
+    code-fold: true
+    code-tools: true
+    fig-align: center
+    df-print: kable
+
+execute:
+  echo: true
+  warning: false
+  message: false
+
+knitr:
+  opts_chunk:
+    comment: "#>"
 ---
 
-## Objectives
+```{r}
+#| label: setup
+#| include: false
+set.seed(2025)
+```
 
-- State the assumptions behind covariance stationarity.
-- Derive mean, autocovariance, and autocorrelation functions.
-- Explain what differencing changes in a trend or seasonal process.
-- Check an analytic argument with a short R simulation when useful.
+## Objectives {.unnumbered}
 
-## Exercise tracker
+- State the conditions for covariance stationarity.
+- Derive the mean, autocovariance, and autocorrelation functions for various processes.
+- Show how differencing eliminates deterministic polynomial and seasonal trends.
+- Verify analytical results with short R simulations where instructive.
 
-| Exercise | Main topic | Progress |
-| --- | --- | --- |
-| 2.4 | MA(1) and equivalent autocorrelation | To do |
-| 2.5 | Linear trend plus stationary noise | To do |
-| 2.8 | Finite linear filter | To do |
-| 2.9 | Differencing a polynomial trend | To do |
-| 2.12 | Seasonal difference of white noise | To do |
-| 2.14 | Mean and covariance of transformed processes | To do |
-| 2.17 | Variance of a sample mean | To do |
-| 2.23 | Sum of independent stationary processes | To do |
-| 2.26 | Semivariogram and intrinsic stationarity | To do |
-| 2.27 | Finite moving-average process | To do |
+---
 
-The tracker follows the second course handout. Consult it for the full wording and all subparts.
+## Notation and Assumptions
 
-## Derivation template
+Throughout this document, $\{e_t\}$ denotes a **zero-mean white noise** process
+satisfying
 
-Copy this pattern under each exercise:
+$$
+E(e_t) = 0, \qquad
+\operatorname{Var}(e_t) = \sigma_e^2, \qquad
+\operatorname{Cov}(e_t, e_s) = 0 \quad (t \neq s).
+$$
 
-1. **Assumptions:** Define the process and the properties of the innovations.
-2. **Mean:** Calculate $E(Y_t)$ and check whether it depends on $t$.
-3. **Autocovariance:** Calculate $\operatorname{Cov}(Y_t,Y_{t-k})$ and check whether it depends only on $k$.
-4. **Conclusion:** State the stationarity result and justify it.
-5. **R check (optional):** Simulate with a fixed seed; use it as a check, not as proof.
+A process $\{Y_t\}$ is **covariance stationary** if
 
-## Exercise 2.4 · MA(1) process
+1. $E(Y_t) = \mu$ for all $t$ (constant mean), and
+2. $\operatorname{Cov}(Y_t, Y_{t-k}) = \gamma_k$ for all $t$ (autocovariance depends only on lag $k$).
 
-For $Y_t=e_t+\theta e_{t-1}$, work through both specified values of $\theta$. Show the variance and the nonzero autocovariances before calculating $\rho_k$. Then address why the sample autocorrelation may or may not distinguish the two processes.
+The **autocorrelation function** (ACF) is defined as
+$$
+\rho_k = \frac{\gamma_k}{\gamma_0}, \qquad k = 0, \pm 1, \pm 2, \ldots
+$$
 
-**Derivation:** To complete.
+---
 
-## Exercise 2.5 · Trend plus stationary component
+## Exercise 2.4 — MA(1) Process
 
-For $Y_t=5+2t+X_t$, find the mean function and autocovariance, then give a stationarity conclusion.
+**Given.** Let $\{e_t\}$ be zero-mean white noise and define
+$$
+Y_t = e_t + \theta e_{t-1}, \qquad \theta \in \bigl\{3,\; \tfrac{1}{3}\bigr\}.
+$$
 
-**Derivation:** To complete.
+### Part (a): Autocorrelation function
 
-## Remaining exercises
+**Mean.**
+$$
+E(Y_t) = E(e_t) + \theta\, E(e_{t-1}) = 0.
+$$
 
-Add a section for each row in the tracker as you work. Keep algebra legible with Quarto math notation and put any simulation immediately after the result it checks.
+**Variance.**
+$$
+\gamma_0 = \operatorname{Var}(Y_t)
+         = \operatorname{Var}(e_t) + \theta^2 \operatorname{Var}(e_{t-1})
+         = \sigma_e^2(1 + \theta^2).
+$$
+
+**Lag-1 autocovariance.**
+$$
+\gamma_1 = \operatorname{Cov}(Y_t, Y_{t-1})
+         = E\bigl[(e_t + \theta e_{t-1})(e_{t-1} + \theta e_{t-2})\bigr]
+         = \theta\, E(e_{t-1}^2)
+         = \theta\sigma_e^2.
+$$
+
+**Lag $|k| \geq 2$.** The sets $\{t, t-1\}$ and $\{t-k, t-k-1\}$ are disjoint, so
+$\gamma_k = 0$.
+
+**ACF.**
+$$
+\rho_k = \begin{cases}
+  1 & k = 0, \\[4pt]
+  \dfrac{\theta}{1 + \theta^2} & |k| = 1, \\[6pt]
+  0 & |k| \geq 2.
+\end{cases}
+$$
+
+Evaluating at the two specified values:
+
+| $\theta$ | $\rho_1 = \theta/(1+\theta^2)$ |
+|:---:|:---:|
+| $3$ | $3/10 = 0.3$ |
+| $1/3$ | $(1/3)/(1 + 1/9) = (1/3)/(10/9) = 3/10 = 0.3$ |
+
+Both processes share **identical** ACFs.
+
+### Part (b): Identification from the sample ACF
+
+Because $\theta = 3$ and $\theta = 1/3$ yield the same ACF, no estimator
+$\hat{\rho}_k$ — however precise — can distinguish between them.
+This is a consequence of **MA(1) invertibility aliasing**: for any solution
+$\theta$, the reciprocal $1/\theta$ produces an equivalent ACF.
+Uniqueness is restored by imposing the **invertibility condition** $|\theta| < 1$,
+which selects $\theta = 1/3$.
+
+```{r}
+#| label: ex2-4-check
+#| fig-cap: "Sample ACFs for MA(1) with θ = 3 and θ = 1/3 (n = 500)"
+#| fig-width: 8
+#| fig-height: 3.5
+library(ggplot2)
+
+sim_ma1 <- function(theta, n = 500) {
+  e <- rnorm(n + 1)
+  tail(e[-1] + theta * e[-(n + 1)], n)
+}
+
+y3   <- sim_ma1(3)
+y1_3 <- sim_ma1(1 / 3)
+
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+acf(y3,   main = expression(theta == 3),   lag.max = 10, ylim = c(-0.5, 1))
+acf(y1_3, main = expression(theta == 1/3), lag.max = 10, ylim = c(-0.5, 1))
+```
+
+---
+
+## Exercise 2.5 — Linear Trend Plus Stationary Component
+
+**Given.** $Y_t = 5 + 2t + X_t$, where $\{X_t\}$ is zero-mean stationary
+with autocovariance $\gamma_k^X$.
+
+### Part (a): Mean function
+
+$$
+\mu_t = E(Y_t) = 5 + 2t + E(X_t) = 5 + 2t.
+$$
+
+The mean is a linear function of $t$.
+
+### Part (b): Autocovariance function
+
+Constants are absorbed by the expectation operator, so
+$$
+\operatorname{Cov}(Y_t, Y_{t-k})
+  = \operatorname{Cov}(X_t, X_{t-k})
+  = \gamma_k^X.
+$$
+
+The autocovariance depends only on the lag $k$.
+
+### Part (c): Stationarity
+
+$\{Y_t\}$ is **not stationary**. Although the autocovariance satisfies the
+second condition, the mean $\mu_t = 5 + 2t$ varies with $t$, violating the
+first condition. Both conditions must hold simultaneously.
+
+---
+
+## Exercise 2.8 — Finite Linear Filter
+
+**Given.** $\{Y_t\}$ is stationary with mean $\mu$ and autocovariance $\gamma_k$.
+Define the linear filter
+$$
+W_t = \sum_{j=1}^{n} c_j\, Y_{t-j+1},
+$$
+for fixed constants $c_1, \ldots, c_n$.
+
+**Claim.** $\{W_t\}$ is covariance stationary.
+
+**Proof.**
+
+*Mean.*
+$$
+E(W_t) = \sum_{j=1}^{n} c_j\, E(Y_{t-j+1}) = \mu \sum_{j=1}^{n} c_j,
+$$
+which is constant.
+
+*Autocovariance.* By bilinearity of covariance,
+$$
+\operatorname{Cov}(W_t, W_{t-k})
+  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\,
+    \operatorname{Cov}(Y_{t-i+1},\, Y_{t-k-j+1}).
+$$
+
+Since $\{Y_t\}$ is stationary, $\operatorname{Cov}(Y_{t-i+1}, Y_{t-k-j+1}) = \gamma_{k+j-i}$,
+which depends only on the lag. Therefore
+$$
+\operatorname{Cov}(W_t, W_{t-k})
+  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\, \gamma_{k+j-i},
+$$
+a function of $k$ alone. Hence $\{W_t\}$ is covariance stationary. $\blacksquare$
+
+---
+
+## Exercise 2.9 — Differencing a Polynomial Trend
+
+**Given.** $Y_t = \beta_0 + \beta_1 t + X_t$, where $\{X_t\}$ is zero-mean
+stationary with autocovariance $\gamma_k^X$.
+
+### Part (a): First difference $W_t = \nabla Y_t$
+
+$\{Y_t\}$ is **not stationary** because $E(Y_t) = \beta_0 + \beta_1 t$
+depends on $t$.
+
+Apply the first-difference operator $\nabla$:
+$$
+W_t = Y_t - Y_{t-1}
+    = \bigl(\beta_0 + \beta_1 t + X_t\bigr) - \bigl(\beta_0 + \beta_1(t-1) + X_{t-1}\bigr)
+    = \beta_1 + (X_t - X_{t-1}).
+$$
+
+*Mean.* $E(W_t) = \beta_1$ (constant).
+
+*Autocovariance.*
+$$
+\operatorname{Cov}(W_t, W_{t-k})
+  = \operatorname{Cov}(X_t - X_{t-1},\; X_{t-k} - X_{t-k-1})
+  = 2\gamma_k^X - \gamma_{k-1}^X - \gamma_{k+1}^X,
+$$
+which depends only on $k$. Hence $\{W_t\}$ is **stationary**. $\blacksquare$
+
+### Part (b): General polynomial trend of degree $d$
+
+Let $\mu_t$ be a polynomial in $t$ of degree $d$. The operator $\nabla$ reduces
+the degree by one: $\nabla \mu_t$ has degree $d - 1$. By induction,
+$\nabla^m \mu_t = 0$ for $m \geq d$ (or equals a nonzero constant when $m = d$).
+
+- If $m \geq d$: the polynomial part vanishes after $m$ differences and $\nabla^m X_t$
+  remains stationary (by Exercise 2.8), so $\nabla^m Y_t$ is **stationary**.
+- If $0 \leq m < d$: $\nabla^m \mu_t$ is still a nonconstant polynomial in $t$,
+  so $E(\nabla^m Y_t)$ depends on $t$ and $\nabla^m Y_t$ is **not stationary**.
+
+---
+
+## Exercise 2.12 — Seasonal Difference of White Noise
+
+**Given.** $Y_t = e_t - e_{t-12}$.
+
+**Mean.**
+$$
+E(Y_t) = E(e_t) - E(e_{t-12}) = 0.
+$$
+
+**Autocovariance.** Expanding $\operatorname{Cov}(e_t - e_{t-12},\; e_{t-k} - e_{t-k-12})$
+and applying white-noise uncorrelatedness:
+
+$$
+\gamma_k = \begin{cases}
+  2\sigma_e^2  & k = 0,       \\
+  -\sigma_e^2  & |k| = 12,    \\
+  0            & \text{otherwise.}
+\end{cases}
+$$
+
+**ACF.**
+$$
+\rho_k = \begin{cases}
+  1            & k = 0,       \\
+  -\tfrac{1}{2} & |k| = 12,  \\
+  0            & \text{otherwise.}
+\end{cases}
+$$
+
+**Conclusion.** The mean is constant and $\gamma_k$ depends only on $k$,
+so $\{Y_t\}$ is **stationary**. The ACF is nonzero only at lag 12. $\blacksquare$
+
+---
+
+## Exercise 2.14 — Transformed Processes
+
+### Part (a): $Y_t = \theta_0 + t\,e_t$
+
+**Mean.** $E(Y_t) = \theta_0 + t\, E(e_t) = \theta_0$ (constant).
+
+**Autocovariance.**
+$$
+\operatorname{Cov}(Y_t, Y_s)
+  = \operatorname{Cov}(t\,e_t,\; s\,e_s)
+  = ts\,\operatorname{Cov}(e_t, e_s)
+  = \begin{cases} t^2 \sigma_e^2 & t = s, \\ 0 & t \neq s. \end{cases}
+$$
+
+The variance $\gamma(t, t) = t^2\sigma_e^2$ depends on $t$,
+so $\{Y_t\}$ is **not stationary**.
+
+### Part (b): $W_t = \nabla Y_t$ (with $Y_t$ as above)
+
+$$
+W_t = t\,e_t - (t-1)\,e_{t-1}.
+$$
+
+**Mean.** $E(W_t) = 0$ (constant).
+
+**Variance.**
+$$
+\operatorname{Var}(W_t)
+  = t^2\sigma_e^2 + (t-1)^2\sigma_e^2
+  = \bigl[t^2 + (t-1)^2\bigr]\sigma_e^2.
+$$
+
+This depends on $t$, so $\{W_t\}$ is **not stationary**. Differencing does not
+restore stationarity here because the non-stationarity arises from a
+time-varying coefficient, not a deterministic polynomial trend.
+
+### Part (c): $Y_t = e_t\,e_{t-1}$ (Gaussian white noise)
+
+**Mean.** By independence, $E(Y_t) = E(e_t)\,E(e_{t-1}) = 0$.
+
+**Variance.**
+$$
+\operatorname{Var}(Y_t)
+  = E(e_t^2)\,E(e_{t-1}^2)
+  = \sigma_e^4.
+$$
+
+**Autocovariance ($k \geq 1$).** For $k \geq 1$, the index sets
+$\{t, t-1\}$ and $\{t-k, t-k-1\}$ are disjoint, so all four
+variables are independent and
+$$
+\operatorname{Cov}(Y_t, Y_{t-k})
+  = E(e_t\,e_{t-1}\,e_{t-k}\,e_{t-k-1}) = 0.
+$$
+
+**Conclusion.** The mean is zero, the variance is $\sigma_e^4$ (both constant),
+and $\gamma_k = 0$ for all $k \geq 1$, so $\{Y_t\}$ is **stationary**. $\blacksquare$
+
+---
+
+## Exercise 2.17 — Variance of the Sample Mean
+
+**Given.** $\{Y_t\}$ stationary with autocovariance $\gamma_k$.
+Let $\bar{Y} = n^{-1}\sum_{t=1}^{n} Y_t$.
+
+**Derivation.**
+
+$$
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \operatorname{Cov}(Y_t, Y_s)
+  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \gamma_{|t-s|}.
+$$
+
+For each lag $k \in \{0, 1, \ldots, n-1\}$, there are exactly $n - k$ pairs
+$(t, s)$ satisfying $|t - s| = k$. Exploiting $\gamma_{-k} = \gamma_k$:
+
+$$
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n^2}\biggl[n\gamma_0 + 2\sum_{k=1}^{n-1}(n-k)\,\gamma_k\biggr]
+  = \frac{\gamma_0}{n} + \frac{2}{n}\sum_{k=1}^{n-1}\!\left(1 - \frac{k}{n}\right)\gamma_k.
+$$
+
+Combining positive and negative lags yields the symmetric form:
+
+$$
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n}\sum_{k=-(n-1)}^{n-1}\!\left(1 - \frac{|k|}{n}\right)\gamma_k.
+  \qquad\blacksquare
+$$
+
+---
+
+## Exercise 2.23 — Sum of Independent Stationary Processes
+
+**Given.** $\{Z_t\}$ and $\{Y_t\}$ are independent stationary processes
+with means $\mu_Z$, $\mu_Y$ and autocovariances $\gamma_k^Z$, $\gamma_k^Y$.
+Define $W_t = Z_t + Y_t$.
+
+**Mean.**
+$$
+E(W_t) = \mu_Z + \mu_Y = \text{constant}.
+$$
+
+**Autocovariance.**
+$$
+\operatorname{Cov}(W_t, W_{t-k})
+  = \operatorname{Cov}(Z_t, Z_{t-k})
+  + \underbrace{\operatorname{Cov}(Z_t, Y_{t-k})}_{= 0}
+  + \underbrace{\operatorname{Cov}(Y_t, Z_{t-k})}_{= 0}
+  + \operatorname{Cov}(Y_t, Y_{t-k})
+  = \gamma_k^Z + \gamma_k^Y.
+$$
+
+The cross-covariance terms vanish by independence. The resulting autocovariance
+depends only on $k$, so $\{W_t\}$ is **stationary**. $\blacksquare$
+
+---
+
+## Exercise 2.26 — Semivariogram and Intrinsic Stationarity
+
+**Definition.** The *semivariogram* of a process $\{Y_t\}$ is
+$$
+\Gamma(t, s) = \tfrac{1}{2}\,E\!\bigl[(Y_t - Y_s)^2\bigr].
+$$
+
+A process is called **intrinsically stationary** if $\Gamma(t, s)$ depends only
+on the time difference $|t - s|$.
+
+### Part (a): Stationary process
+
+For a covariance-stationary process with mean $\mu$ and autocovariance $\gamma_k$:
+
+$$
+\begin{aligned}
+2\,\Gamma(t, s)
+  &= E\!\bigl[(Y_t - Y_s)^2\bigr] \\
+  &= E(Y_t^2) - 2\,E(Y_t Y_s) + E(Y_s^2) \\
+  &= (\gamma_0 + \mu^2) - 2(\gamma_{|t-s|} + \mu^2) + (\gamma_0 + \mu^2) \\
+  &= 2\gamma_0 - 2\gamma_{|t-s|}.
+\end{aligned}
+$$
+
+Therefore
+$$
+\Gamma(t, s) = \gamma_0 - \gamma_{|t-s|}. \qquad\blacksquare
+$$
+
+### Part (b): Random walk
+
+Let $Y_t = \sum_{j=1}^{t} e_j$ with $Y_0 = 0$. For $t > s$,
+$$
+Y_t - Y_s = \sum_{j=s+1}^{t} e_j,
+$$
+which is a sum of $t - s$ independent terms. Hence
+$$
+\Gamma(t, s)
+  = \tfrac{1}{2}\,\operatorname{Var}\!\left(\sum_{j=s+1}^{t} e_j\right)
+  = \tfrac{1}{2}(t - s)\sigma_e^2.
+$$
+
+This depends only on $|t - s|$, so the random walk is **intrinsically stationary**.
+
+::: {.callout-note}
+The random walk is *not* covariance-stationary because
+$\operatorname{Var}(Y_t) = t\sigma_e^2$ grows without bound.
+Intrinsic stationarity is a strictly weaker condition.
+:::
+
+$\blacksquare$
+
+---
+
+## Exercise 2.27 — Finite Moving-Average Process
+
+**Given.** For a fixed positive integer $r$ and constant $\phi$, define
+$$
+Y_t = \sum_{j=0}^{r} \phi^j\, e_{t-j}
+    = e_t + \phi e_{t-1} + \phi^2 e_{t-2} + \cdots + \phi^r e_{t-r}.
+$$
+
+### Part (a): Stationarity for any $\phi$
+
+**Mean.**
+$$
+E(Y_t) = \sum_{j=0}^{r} \phi^j\, E(e_{t-j}) = 0.
+$$
+
+**Autocovariance.** By bilinearity and white-noise uncorrelatedness:
+$$
+\gamma_k
+  = \operatorname{Cov}(Y_t, Y_{t-k})
+  = \sum_{i=0}^{r}\sum_{j=0}^{r} \phi^{i+j}\, \operatorname{Cov}(e_{t-i},\, e_{t-k-j}).
+$$
+
+The term $\operatorname{Cov}(e_{t-i}, e_{t-k-j}) = \sigma_e^2$ only when $i = k + j$.
+Substituting:
+
+$$
+\gamma_k = \sigma_e^2 \sum_{j=0}^{r-k} \phi^{k+2j}
+         = \sigma_e^2\,\phi^k \sum_{j=0}^{r-k} \phi^{2j},
+\qquad 0 \leq k \leq r,
+$$
+
+and $\gamma_k = 0$ for $|k| > r$. In both cases $\gamma_k$ depends only on $k$,
+not on $t$. Hence $\{Y_t\}$ is **stationary for any $\phi$**. $\blacksquare$
+
+### Part (b): Autocorrelation function
+
+Using the geometric series formula ($\phi \neq \pm 1$):
+
+$$
+\gamma_0 = \sigma_e^2 \sum_{j=0}^{r} \phi^{2j}
+         = \sigma_e^2\,\frac{1 - \phi^{2(r+1)}}{1 - \phi^2}.
+$$
+
+$$
+\gamma_k = \sigma_e^2\,\phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^2},
+\qquad 0 \leq k \leq r.
+$$
+
+Therefore, the ACF is
+
+$$
+\rho_k = \frac{\gamma_k}{\gamma_0}
+       = \phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^{2(r+1)}},
+\qquad 0 \leq k \leq r,
+$$
+
+and $\rho_k = 0$ for $|k| > r$. The ACF has a **finite cutoff** at lag $r$.
+
+```{r}
+#| label: ex2-27-acf
+#| fig-cap: "Theoretical vs. sample ACF for the finite MA process (r = 4, φ = 0.7, n = 1000)"
+#| fig-width: 7
+#| fig-height: 4
+
+phi <- 0.7; r <- 4; n <- 1000
+e   <- rnorm(n + r)
+Y   <- Reduce("+", lapply(0:r, \(j) phi^j * e[(r - j + 1):(n + r - j)]))
+
+# Theoretical ACF
+rho_theory <- function(k, phi, r) {
+  if (abs(k) > r) return(0)
+  phi^k * (1 - phi^(2*(r - k + 1))) / (1 - phi^(2*(r + 1)))
+}
+lags <- 0:10
+rho_th <- sapply(lags, rho_theory, phi = phi, r = r)
+
+# Plot
+acf_obj <- acf(Y, lag.max = 10, plot = FALSE)
+plot(acf_obj, main = "", ylim = c(-0.2, 1.1),
+     xlab = "Lag", ylab = expression(rho[k]))
+points(lags, rho_th, col = "firebrick", pch = 19, cex = 0.9)
+legend("topright", legend = c("Sample ACF", "Theoretical"),
+       col = c("black", "firebrick"), lty = c(1, NA), pch = c(NA, 19),
+       bty = "n", cex = 0.85)
+title(main = bquote(phi == .(phi) ~ "," ~ r == .(r)))
+```
+
+---
+
+## Summary
+
+| Exercise | Process | Stationary? | Key result |
+|:---:|---|:---:|---|
+| 2.4 | $e_t + \theta e_{t-1}$ | Yes | $\rho_1 = \theta/(1+\theta^2)$; $\theta=3$ and $\theta=1/3$ are indistinguishable |
+| 2.5 | $5 + 2t + X_t$ | No | Mean $\mu_t = 5+2t$ depends on $t$ |
+| 2.8 | $\sum c_j Y_{t-j+1}$ | Yes | Any finite linear filter of a stationary process is stationary |
+| 2.9 | $\beta_0 + \beta_1 t + X_t$ | No / Yes after $\nabla$ | $\nabla^m Y_t$ stationary $\iff m \geq d$ |
+| 2.12 | $e_t - e_{t-12}$ | Yes | $\rho_{12} = -1/2$; all other lags zero |
+| 2.14a | $\theta_0 + t e_t$ | No | $\operatorname{Var}(Y_t) = t^2\sigma_e^2$ |
+| 2.14b | $\nabla(\theta_0 + t e_t)$ | No | $\operatorname{Var}(W_t)$ still depends on $t$ |
+| 2.14c | $e_t e_{t-1}$ | Yes | $\gamma_k = 0$ for $k \geq 1$; white-noise-like ACF |
+| 2.17 | $\bar{Y}$ | — | $\operatorname{Var}(\bar{Y}) = n^{-1}\sum_{k}(1-|k|/n)\gamma_k$ |
+| 2.23 | $Z_t + Y_t$ (independent) | Yes | $\gamma_k^W = \gamma_k^Z + \gamma_k^Y$ |
+| 2.26 | Semivariogram | — | $\Gamma(t,s) = \gamma_0 - \gamma_{|t-s|}$; random walk intrinsically stationary |
+| 2.27 | $\sum_{j=0}^r \phi^j e_{t-j}$ | Yes | ACF cuts off at lag $r$; valid for any $\phi$ |

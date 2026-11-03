@@ -1,0 +1,753 @@
+---
+title: "Empirical Modeling of Autoregressive Processes"
+subtitle: "An End-to-End Box–Jenkins Case Study in R: Identification, Estimation, Selection, Diagnostics, and Forecasting"
+author: "PHAL Menghak"
+date: today
+date-format: "D MMMM YYYY"
+
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Table of Contents"
+    number-sections: true
+    number-depth: 3
+    theme: cosmo
+    highlight-style: github
+    code-fold: show
+    code-tools: true
+    fig-align: center
+    df-print: kable
+
+execute:
+  echo: true
+  warning: false
+  message: false
+
+knitr:
+  opts_chunk:
+    comment: "#>"
+---
+
+```{r}
+#| label: setup
+#| include: false
+set.seed(2025)
+library(knitr)
+library(tseries)
+```
+
+## Executive Summary {.unnumbered}
+
+This empirical study provides an end-to-end, reproducible implementation of the **Autoregressive ($AR(p)$)** model within the classic Box–Jenkins framework. Using the historical annual Canadian Lynx trappings series (1821–1934, $n = 114$), we systematically execute data integrity validation, exploratory data analysis, stationarity testing, model identification via ACF/PACF, maximum likelihood parameter estimation, multi-criteria model selection, residual diagnostic checking, and out-of-sample dynamic forecasting with prediction intervals.
+
+All computations are executed natively in R with zero fabricated metrics. The workflow illustrates how to defend modeling decisions with statistical rigor, explaining why parsimonious criteria (such as BIC) and out-of-sample predictive accuracy prevent in-sample overfitting.
+
+---
+
+## Theoretical Framework of the $AR(p)$ Model
+
+An Autoregressive process of order $p$, denoted $\text{AR}(p)$, models the current observation $Y_t$ as a linear combination of its $p$ most recent past values plus an exogenous stochastic shock:
+
+$$
+Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t,
+$$
+
+where:
+
+- $c = \mu(1 - \sum_{i=1}^p \phi_i)$ is the constant term related to the unconditional process mean $\mu = E(Y_t)$.
+- $\phi_1, \phi_2, \dots, \phi_p$ are the autoregressive coefficients.
+- $\{e_t\} \stackrel{i.i.d.}{\sim} \mathcal{W}\mathcal{N}(0, \sigma_e^2)$ is a Gaussian white noise innovation sequence with $E(e_t) = 0$, $\operatorname{Var}(e_t) = \sigma_e^2$, and $\operatorname{Cov}(e_t, e_s) = 0$ for $t \neq s$.
+
+Using the backshift (lag) operator $B$, where $B^k Y_t = Y_{t-k}$, the model is concisely expressed as:
+
+$$
+\Phi(B) Y_t = c + e_t, \qquad \text{where } \Phi(B) = 1 - \phi_1 B - \phi_2 B^2 - \dots - \phi_p B^p.
+$$
+
+### Stationarity and Invertibility Conditions
+
+An $\text{AR}(p)$ process is weakly (covariance) stationary if and only if all roots of the characteristic equation
+
+$$
+\Phi(z) = 1 - \phi_1 z - \phi_2 z^2 - \dots - \phi_p z^p = 0
+$$
+
+lie strictly **outside the complex unit circle**, that is, $|z_j| > 1$ for all $j = 1, \dots, p$. 
+
+For an $\text{AR}(1)$ process, this reduces to $|\phi_1| < 1$. For an $\text{AR}(2)$ process, the stationarity region forms a triangular parameter space:
+
+$$
+\phi_1 + \phi_2 < 1, \qquad \phi_2 - \phi_1 < 1, \qquad |\phi_2| < 1.
+$$
+
+When $\phi_1^2 + 4\phi_2 < 0$, the roots of the characteristic equation form a complex conjugate pair $z_{1,2} = r e^{\pm i \theta}$, generating damped quasi-cyclical fluctuations with characteristic frequency $\theta$ and average cycle length:
+
+$$
+\theta = \arccos\left(\frac{\phi_1}{2\sqrt{-\phi_2}}\right), \qquad T = \frac{2\pi}{\theta}.
+$$
+
+### Theoretical Signatures of ACF and PACF
+
+| Function | $\text{AR}(p)$ Behavior | $\text{MA}(q)$ Behavior | $\text{ARMA}(p, q)$ Behavior |
+|---|---|---|---|
+| **ACF ($\rho_k$)** | Tails off (exponential decay or damped sine waves) | Cuts off after lag $q$ | Tails off after lag $q - p$ |
+| **PACF ($\phi_{kk}$)** | **Cuts off abruptly after lag $p$** ($\phi_{kk} = 0, \forall k > p$) | Tails off (exponential decay or damped sine waves) | Tails off after lag $p - q$ |
+
+This fundamental duality makes the **Partial Autocorrelation Function (PACF)** the primary diagnostic tool for identifying the order $p$ of an autoregressive process.
+
+---
+
+## Step 1: Data Preparation and Integrity Check
+
+### Purpose
+To inspect the structural properties of the raw dataset, confirm the sampling interval, test for missing values and duplicates, and compute standard descriptive statistics.
+
+### Statistical Concept
+A time series must possess a consistent sampling grid without irregular timestamp gaps or corrupted values before applying linear time-invariant filters. Extreme skewness and heavy tails frequently violate Gaussian innovation assumptions, requiring variance-stabilizing non-linear transformations (such as Box–Cox or logarithmic transformations).
+
+### R Implementation
+
+```{r}
+#| label: data-preparation
+# 1. Load data
+data(lynx)
+raw_ts <- lynx
+
+# 2. Structural metadata
+n_total   <- length(raw_ts)
+start_yr  <- start(raw_ts)[1]
+end_yr    <- end(raw_ts)[1]
+freq_val  <- frequency(raw_ts)
+has_na    <- any(is.na(raw_ts))
+has_dups  <- any(duplicated(time(raw_ts)))
+
+# 3. Variance stabilization (log10 transformation)
+# Following Campbell & Walker (1977) and Cryer & Chan (2008),
+# log10 transformation stabilizes cyclical amplitude.
+y <- log10(raw_ts)
+
+# 4. Out-of-sample partitioning: 100 observations train, 14 observations test
+train <- window(y, end = 1920)
+test  <- window(y, start = 1921)
+
+# 5. Descriptive statistics function
+calc_descriptives <- function(x) {
+  n <- length(x)
+  m <- mean(x)
+  s <- sd(x)
+  skew <- sum((x - m)^3) / (n * s^3)
+  kurt <- sum((x - m)^4) / (n * s^4) - 3
+  c(
+    N        = n,
+    Mean     = m,
+    SD       = s,
+    Median   = median(x),
+    IQR      = IQR(x),
+    Min      = min(x),
+    Max      = max(x),
+    Skewness = skew,
+    Kurtosis = kurt
+  )
+}
+
+desc_table <- rbind(
+  `Raw Lynx`       = calc_descriptives(raw_ts),
+  `Log10 Lynx`     = calc_descriptives(y),
+  `Train (1821-1920)` = calc_descriptives(train),
+  `Test (1921-1934)`  = calc_descriptives(test)
+)
+
+kable(round(desc_table, 3), caption = "Descriptive Statistics across Series Transformations and Partitions")
+```
+
+### Output Interpretation
+- **Data Completeness:** The dataset comprises $N = 114$ continuous annual observations spanning 1821 to 1934 (`frequency = 1`). There are zero missing observations (`has_na = FALSE`) and zero duplicate timestamps.
+- **Distributional Shift:** The raw series exhibits substantial positive skewness ($1.332$) with values ranging from $39$ to $6,991$. The $\log_{10}$ transformation substantially symmetrizes the empirical distribution, reducing skewness to $-0.357$ and bringing excess kurtosis to $-0.773$.
+- **Partitioning:** The training set preserves the first $100$ observations (1821–1920) to estimate parameters and select models, leaving the final $14$ observations (1921–1934) untouched for true out-of-sample predictive evaluation.
+
+### Sample Academic Writing
+> "The historical Canadian Lynx dataset spans 114 annual observations from 1821 to 1934. Inspection revealed no missing records or irregular sampling intervals. Due to pronounced right-skewness and multiplicative amplitude dynamics in the raw trapping counts, a logarithmic transformation ($Y_t = \log_{10}(\text{Lynx}_t)$) was applied following Campbell and Walker (1977). This transformation stabilized the cyclical variance and produced an approximately symmetric distribution (skewness = -0.357). The series was partitioned into an in-sample training window ($n = 100$, 1821–1920) and a post-sample test horizon ($h = 14$, 1921–1934)."
+
+---
+
+## Step 2: Exploratory Data Analysis (EDA)
+
+### Purpose
+To visually examine the temporal properties of the series, detect potential structural breaks or deterministic trends, and verify variance homogeneity.
+
+### Statistical Concept
+Stationarity in the wide sense requires both a constant unconditional mean and a constant unconditional variance. If the local variance expands as the series level rises, the process is heteroscedastic. A logarithmic transformation converts multiplicative variance dynamics into additive, homoscedastic fluctuations.
+
+### R Implementation
+
+```{r}
+#| label: eda-plots
+#| fig-cap: "Top panel: Raw annual lynx trappings exhibiting cycle-dependent amplitude. Bottom panel: Log10 transformed series displaying stabilized cyclical amplitude."
+#| fig-width: 8.5
+#| fig-height: 5.5
+
+par(mfrow = c(2, 1), mar = c(3.5, 4, 2, 1), oma = c(0, 0, 1, 0))
+
+# Raw series
+plot(raw_ts, col = "gray30", lwd = 1.2,
+     ylab = "Trappings", xlab = "", main = "Annual Canadian Lynx Trappings (1821–1934)")
+grid(col = "gray85")
+
+# Log10 series with train/test division
+plot(y, col = "steelblue", lwd = 1.5,
+     ylab = expression(log[10](Trappings)), xlab = "Year",
+     main = expression("Variance-Stabilized Series: " * Y[t] == log[10](Lynx[t])))
+abline(v = 1920.5, col = "firebrick", lty = 2, lwd = 1.5)
+text(1910, 3.7, "Train (1821–1920)", col = "gray20", cex = 0.85)
+text(1928, 3.7, "Test (1921–1934)", col = "firebrick", cex = 0.85)
+grid(col = "gray85")
+```
+
+### Output Interpretation
+- The raw series demonstrates sharp, asymmetric peaks followed by prolonged troughs, with peak amplitudes varying dramatically between 1,500 and nearly 7,000 trappings.
+- In contrast, the $\log_{10}$ transformed series exhibits stable oscillation bounds between $1.5$ and $3.85$, with uniform cycle amplitudes across the entire 114-year period.
+- The series displays a prominent, recurring quasi-cyclical rhythm of approximately 9 to 10 years, reflecting the famous predator–prey ecological cycle between the Canadian lynx and the snowshoe hare.
+
+### Sample Academic Writing
+> "Visual inspection of the raw lynx trappings reveals strong cyclical behavior accompanied by heteroscedastic volatility: cycle peaks reach higher amplitudes during high-abundance phases. Following the logarithmic transformation, the oscillations exhibit stable amplitude bounds throughout the 1821–1934 window, with no evident long-term deterministic drift. The series fluctuates regularly around an empirical mean of approximately 2.90, displaying clear quasi-periodic cycles."
+
+---
+
+## Step 3: Stationarity Assessment and Differencing Decision
+
+### Purpose
+To formally test whether the series possesses a unit root (stochastic trend) or is stationary around a constant mean.
+
+### Statistical Concept
+The **Augmented Dickey–Fuller (ADF)** test evaluates the null hypothesis of a unit root ($H_0: \gamma = 0$) against the alternative of covariance stationarity ($H_1: \gamma < 0$) in the test regression:
+
+$$
+\Delta Y_t = c + \beta t + \gamma Y_{t-1} + \sum_{i=1}^{k} \psi_i \Delta Y_{t-i} + \varepsilon_t.
+$$
+
+If $H_0$ is rejected ($p < 0.05$), the process is stationary in levels ($I(0)$). Differencing an already stationary process ($\nabla Y_t = Y_t - Y_{t-1}$) is known as **overdifferencing**; it injects an artificial non-invertible moving average unit root ($\theta = 1$) into the innovation structure, inflating parameter variances and distorting long-term forecasts.
+
+### R Implementation
+
+```{r}
+#| label: stationarity-testing
+# ADF test on the training series
+adf_result <- adf.test(train, alternative = "stationary")
+
+adf_summary <- data.frame(
+  Test = "Augmented Dickey-Fuller",
+  Lag_Order = adf_result$parameter,
+  Test_Statistic = round(adf_result$statistic, 4),
+  P_Value = adf_result$p.value,
+  Conclusion = ifelse(adf_result$p.value <= 0.05, 
+                      "Reject H0: Stationary (I(0))", 
+                      "Fail to Reject H0: Unit Root (I(1))")
+)
+
+kable(adf_summary, caption = "Formal Unit Root Assessment on Training Partition")
+```
+
+### Output Interpretation
+- The Augmented Dickey–Fuller test on the training partition yields a test statistic of $\text{DF} = -4.6713$ with an empirical $p$-value bounded at $p = 0.01$ (the smallest tabulated $p$-value in `adf.test`).
+- Because $p < 0.01$, we decisively reject the null hypothesis of a unit root at the $1\%$ significance level.
+- **Methodological Decision:** The series is covariance-stationary in levels. Therefore, **no differencing is required** ($d = 0$). We proceed with stationary $\text{AR}(p)$ specifications in levels.
+
+### Sample Academic Writing
+> "To test for the presence of a stochastic trend, an Augmented Dickey–Fuller test was conducted on the in-sample training series. The test statistic of -4.6713 falls well into the critical rejection region ($p < 0.01$), rejecting the null hypothesis of a unit root. Consequently, the logarithmic lynx series is confirmed to be stationary in levels ($I(0)$). Differencing was deliberately avoided to prevent overdifferencing and the introduction of an artificial moving-average unit root."
+
+---
+
+## Step 4: Model Identification via ACF and PACF
+
+### Purpose
+To analyze empirical autocorrelation and partial autocorrelation functions to determine candidate autoregressive orders ($p$).
+
+### Statistical Concept
+For an $\text{AR}(p)$ process:
+1. **Sample Autocorrelation Function (ACF):** Satisfies the Yule–Walker difference equations, generating damped exponential decay or damped sinusoidal waves.
+2. **Sample Partial Autocorrelation Function (PACF):** Measures the correlation between $Y_t$ and $Y_{t-k}$ after filtering out the linear dependence explained by intermediate lags $Y_{t-1}, \dots, Y_{t-k+1}$. Theoretical PACF cuts off sharply to zero for all lags $k > p$:
+
+$$
+\phi_{kk} = 0 \quad \text{for all } k > p.
+$$
+
+Under the null hypothesis of an $\text{AR}(p)$ process, sample PACF values beyond lag $p$ are asymptotically normal with variance $1/n$, yielding Bartlett 95% confidence intervals at:
+
+$$
+\text{CI}_{0.95} = \pm \frac{1.96}{\sqrt{n}}.
+$$
+
+### R Implementation
+
+```{r}
+#| label: acf-pacf-identification
+#| fig-cap: "Sample ACF and PACF of the in-sample series (n = 100). The dashed blue horizontal lines represent the 95% Bartlett confidence limits (±1.96/√100 = ±0.196)."
+#| fig-width: 8.5
+#| fig-height: 4
+
+par(mfrow = c(1, 2), mar = c(4, 4, 2.5, 1))
+
+# ACF
+acf(train, lag.max = 15, main = "Sample Autocorrelation (ACF)",
+    col = "gray20", lwd = 2, ylim = c(-0.8, 1))
+grid(col = "gray90")
+
+# PACF
+pacf(train, lag.max = 15, main = "Sample Partial Autocorrelation (PACF)",
+     col = "steelblue", lwd = 2, ylim = c(-0.8, 1))
+grid(col = "gray90")
+```
+
+```{r}
+#| label: pacf-table
+# Extract exact numerical PACF values for the first 8 lags
+pacf_obj <- pacf(train, lag.max = 8, plot = FALSE)
+crit_bound <- 1.96 / sqrt(length(train))
+
+pacf_df <- data.frame(
+  Lag_k = 1:8,
+  PACF = round(as.vector(pacf_obj$acf), 4),
+  Critical_Bound = round(crit_bound, 4),
+  Significant = abs(as.vector(pacf_obj$acf)) > crit_bound
+)
+
+kable(pacf_df, caption = "Numerical PACF Values with 95% Bartlett Significance Test")
+```
+
+### Output Interpretation
+- **ACF Pattern:** The sample ACF exhibits pronounced, slow, damped oscillatory behavior with positive peaks at lags 9–10 and negative troughs at lags 4–5. This confirms the presence of complex conjugate autoregressive roots.
+- **PACF Pattern:** 
+  - Lag 1: $\hat{\phi}_{11} = +0.7797$ (strongly positive and significant, $|t| \approx 7.8$).
+  - Lag 2: $\hat{\phi}_{22} = -0.7109$ (strongly negative and significant, $|t| \approx 7.1$).
+  - Lag 3: $\hat{\phi}_{33} = -0.1552$ (falls inside the $\pm 0.196$ threshold).
+  - Lag 4: $\hat{\phi}_{44} = -0.1479$ (inside the threshold).
+  - Lags 5–8: Remain small and statistically indistinguishable from zero.
+- **Proposed Candidate Models:** The abrupt cutoff in the PACF at lag $k = 2$ strongly points to an **$\text{AR}(2)$** specification as the leading candidate. To ensure academic rigor and guard against under- or over-fitting, we entertain:
+  1. $\text{AR}(1)$ as a parsimonious under-specified benchmark.
+  2. $\text{AR}(2)$ as the primary theoretically identified model.
+  3. $\text{AR}(3)$ to test for lag-3 marginal dynamics.
+  4. $\text{AR}(4)$ as an extended parameterization.
+
+### Sample Academic Writing
+> "The sample autocorrelation function exhibits damped sinusoidal oscillations with a recurrence interval of approximately 9 to 10 years, characteristic of stationary autoregressive processes with complex conjugate roots. The sample partial autocorrelation function displays large, statistically significant coefficients at lag 1 ($\hat{\phi}_{11} = 0.780$) and lag 2 ($\hat{\phi}_{22} = -0.711$), followed by an immediate drop within the 95% Bartlett bounds ($\pm 1.96/\sqrt{100} = \pm 0.196$). This distinct cutoff pattern provides strong empirical evidence in favor of an $\text{AR}(2)$ specification, while $\text{AR}(1)$, $\text{AR}(3)$, and $\text{AR}(4)$ are retained as competitive candidates."
+
+---
+
+## Step 5: Model Estimation and Parameter Significance
+
+### Purpose
+To estimate the parameters of the candidate models using Maximum Likelihood Estimation (MLE), extract standard errors, test coefficient significance, and evaluate characteristic roots.
+
+### Statistical Concept
+Parameters are estimated via Maximum Likelihood Estimation initialized through the Kalman filter. The asymptotic covariance matrix of the estimators $\hat{\boldsymbol{\phi}}$ is obtained from the inverse Fisher Information matrix:
+
+$$
+\widehat{\operatorname{Var}}(\hat{\boldsymbol{\phi}}) = \mathcal{I}^{-1}(\hat{\boldsymbol{\phi}}).
+$$
+
+For each coefficient, we evaluate the Wald statistic:
+
+$$
+t = \frac{\hat{\phi}_j}{\operatorname{SE}(\hat{\phi}_j)} \stackrel{a}{\sim} \mathcal{N}(0, 1).
+$$
+
+Coefficients are statistically significant at $\alpha = 0.05$ if $|t| > 1.96$ ($p < 0.05$).
+
+### R Implementation
+
+```{r}
+#| label: model-estimation
+# Fit candidate models via stats::arima (MLE)
+m1 <- stats::arima(train, order = c(1, 0, 0))
+m2 <- stats::arima(train, order = c(2, 0, 0))
+m3 <- stats::arima(train, order = c(3, 0, 0))
+m4 <- stats::arima(train, order = c(4, 0, 0))
+
+# Extraction helper function
+extract_ar_table <- function(m, p, model_name) {
+  coefs <- m$coef[1:p]
+  ses   <- sqrt(diag(m$var.coef))[1:p]
+  t_val <- coefs / ses
+  p_val <- 2 * (1 - pnorm(abs(t_val)))
+  
+  data.frame(
+    Model     = model_name,
+    Parameter = names(coefs),
+    Estimate  = round(coefs, 4),
+    SE        = round(ses, 4),
+    t_stat    = round(t_val, 3),
+    p_value   = format.pval(p_val, eps = 0.001, digits = 3)
+  )
+}
+
+param_summary <- rbind(
+  extract_ar_table(m1, 1, "AR(1)"),
+  extract_ar_table(m2, 2, "AR(2)"),
+  extract_ar_table(m3, 3, "AR(3)"),
+  extract_ar_table(m4, 4, "AR(4)")
+)
+
+kable(param_summary, row.names = FALSE,
+      caption = "Parameter Estimates, Standard Errors, and Significance Tests for Candidate AR Models")
+```
+
+### Mathematical Analysis of the $\text{AR}(2)$ Process
+
+```{r}
+#| label: ar2-roots
+# Characteristic polynomial: 1 - phi1*z - phi2*z^2 = 0
+phi1 <- m2$coef["ar1"]
+phi2 <- m2$coef["ar2"]
+roots_ar2 <- polyroot(c(1, -phi1, -phi2))
+mod_roots <- Mod(roots_ar2)
+
+# Quasi-cyclical frequency and period
+theta_rad <- acos(phi1 / (2 * sqrt(-phi2)))
+period_yrs <- (2 * pi) / theta_rad
+
+root_df <- data.frame(
+  Root = c("z1", "z2"),
+  Real = round(Re(roots_ar2), 4),
+  Imag = round(Im(roots_ar2), 4),
+  Modulus = round(mod_roots, 4),
+  Status = ifelse(mod_roots > 1, "Stationary (|z| > 1)", "Non-Stationary")
+)
+
+kable(root_df, caption = "Characteristic Polynomial Roots of the Fitted AR(2) Model")
+```
+
+### Output Interpretation
+- **In the $\text{AR}(1)$ model:** $\hat{\phi}_1 = 0.7725$ ($t = 12.18, p < 0.001$). However, the residual variance $\hat{\sigma}^2 = 0.123$ is very large, indicating severe omitted-lag bias.
+- **In the $\text{AR}(2)$ model:** 
+  $$\hat{\phi}_1 = 1.3693 \quad (\text{SE} = 0.0661, \; t = 20.73, \; p < 0.001)$$
+  $$\hat{\phi}_2 = -0.7385 \quad (\text{SE} = 0.0664, \; t = -11.12, \; p < 0.001)$$
+  $$\hat{\mu} = 2.8851 \quad (\text{SE} = 0.0642, \; t = 44.94, \; p < 0.001)$$
+  Both parameters are overwhelmingly significant ($p < 10^{-15}$). The estimated innovation variance drops by more than half to $\hat{\sigma}^2 = 0.0558$.
+- **In $\text{AR}(3)$ and $\text{AR}(4)$:** The higher-order coefficients fail conventional significance tests:
+  - For $\text{AR}(3)$: $\hat{\phi}_3 = -0.1265$ ($p = 0.138$, not significant at $\alpha = 0.05$).
+  - For $\text{AR}(4)$: $\hat{\phi}_3 = -0.0089$ ($p = 0.933$) and $\hat{\phi}_4 = -0.1654$ ($p = 0.093$, marginal).
+- **Root and Periodicity Analysis:** The characteristic roots of the $\text{AR}(2)$ model form a complex conjugate pair $0.9271 \pm 0.7032i$ with modulus $|z| = 1.1637 > 1$, strictly satisfying covariance stationarity. The implied cycle period is:
+  $$T = \frac{2\pi}{\arccos(1.3693 / (2\sqrt{0.7385}))} \approx 9.69 \text{ years},$$
+  accurately capturing the known 9.5-year Canadian lynx biological cycle.
+
+---
+
+## Step 6: Multi-Criteria Model Selection
+
+### Purpose
+To compare candidate models across goodness-of-fit, parameter penalty criteria, and residual variance, explaining why model choice cannot rely on AIC alone.
+
+### Statistical Concept
+Goodness-of-fit naturally improves as additional lags are appended to an autoregressive model. Penalized likelihood criteria balance in-sample fit against model complexity:
+
+$$
+\text{AIC} = -2\ln(\hat{L}) + 2k,
+$$
+
+$$
+\text{BIC} = -2\ln(\hat{L}) + k\ln(n),
+$$
+
+where $k$ is the total number of estimated parameters (including autoregressive parameters, constant, and innovation variance $\sigma_e^2$), and $n$ is the training sample size ($n = 100$).
+
+### Why Model Selection Cannot Rely on AIC Alone
+
+::: {.callout-note}
+### Critical Distinction Between AIC and BIC
+- **AIC is asymptotically efficient**; its penalty ($2k$) reflects the Kullback–Leibler information discrepancy. However, in small-to-moderate samples, AIC has a non-zero probability of **over-parameterizing** autoregressive processes because the penalty does not grow with sample size.
+- **BIC is dimensionally consistent**; because $\ln(n) = \ln(100) \approx 4.605 > 2$, BIC penalizes additional coefficients more than twice as heavily as AIC. Under the true finite $\text{AR}(p)$ model, the probability that BIC selects the correct order approaches 1 as $n \to \infty$.
+- Relying on AIC alone risks selecting overfitted specifications that capture in-sample noise at the expense of out-of-sample forecast accuracy.
+:::
+
+### R Implementation
+
+```{r}
+#| label: model-comparison
+calc_bic <- function(m, n_obs) {
+  k <- length(m$coef) + 1 # AR terms + intercept + sigma^2
+  -2 * m$loglik + k * log(n_obs)
+}
+
+n_train <- length(train)
+models <- list("AR(1)" = m1, "AR(2)" = m2, "AR(3)" = m3, "AR(4)" = m4)
+
+comp_df <- data.frame(
+  Model = names(models),
+  p = 1:4,
+  Log_Likelihood = round(sapply(models, function(m) m$loglik), 3),
+  Sigma2 = round(sapply(models, function(m) m$sigma2), 4),
+  AIC = round(sapply(models, AIC), 2),
+  BIC = round(sapply(models, function(m) calc_bic(m, n_train)), 2),
+  All_Pars_Sig_05 = c("Yes", "Yes", "No (p=0.138)", "No (p=0.093)")
+)
+
+kable(comp_df, caption = "Comparison of Candidate Autoregressive Models")
+```
+
+### Output Interpretation
+- **AR(1):** Demonstrates poor fit ($\text{AIC} = 81.26, \text{BIC} = 89.07$), failing to capture the cyclical covariance structure.
+- **AR(2):** Achieves the **lowest BIC** ($16.16$), a dramatic reduction in residual variance ($\hat{\sigma}^2 = 0.0558$), and possesses $100\%$ statistically significant parameters.
+- **AR(3):** Both AIC ($6.03$) and BIC ($19.05$) are worse than $\text{AR}(2)$, while $\hat{\phi}_3$ is insignificant.
+- **AR(4):** Yields a marginally lower AIC ($3.01$ vs $5.73$), but a noticeably worse BIC ($18.64$ vs $16.16$). The fourth lag coefficient is not significant at the $5\%$ level ($p = 0.093$).
+- **Conclusion:** Guided by parsimony, parameter significance, and the BIC penalty, **$\text{AR}(2)$ is selected as the optimal model**.
+
+### Sample Academic Writing
+> "Table 5 summarizes model selection diagnostics across candidate orders $p = 1, \dots, 4$. While the $\text{AR}(4)$ model yields the minimum AIC (3.01), it increases the BIC from 16.16 to 18.64 and includes higher-order coefficients that fail to achieve statistical significance at the 5% level. The $\text{AR}(2)$ specification minimizes BIC, satisfies all parameter significance tests ($p < 0.001$), and achieves substantial variance reduction without overfitting. Following the Box–Jenkins principle of parsimony, $\text{AR}(2)$ is chosen as the final specification."
+
+---
+
+## Step 7: Model Diagnostics and Residual Verification
+
+### Purpose
+To rigorously check that the residuals of the fitted $\text{AR}(2)$ model satisfy white noise assumptions: zero mean, homoscedasticity, absence of serial correlation, and approximate Gaussianity.
+
+### Statistical Concept
+Let $\hat{e}_t = Y_t - \hat{Y}_t$ be the model residuals.
+1. **Ljung–Box Portmanteau Test:** Evaluates whether residual autocorrelations up to lag $K$ are jointly zero:
+   $$
+   Q^*(K) = n(n + 2) \sum_{k=1}^{K} \frac{\hat{r}_k^2(\hat{e})}{n - k} \stackrel{H_0}{\sim} \chi^2(K - p),
+   $$
+   where degrees of freedom must be adjusted by subtracting the $p = 2$ estimated AR coefficients ($df = K - p$).
+2. **Normality:** Assessed via the **Shapiro–Wilk test** and Normal Quantile–Quantile (Q–Q) plots.
+
+### R Implementation
+
+```{r}
+#| label: residual-diagnostics
+#| fig-cap: "Comprehensive residual diagnostic panel for the fitted AR(2) model. (A) Standardized residuals; (B) Residual ACF with 95% Bartlett bounds; (C) Normal Q-Q plot; (D) Residual histogram with theoretical Gaussian overlay."
+#| fig-width: 8.5
+#| fig-height: 7
+
+res_ar2 <- residuals(m2)
+std_res <- res_ar2 / sqrt(m2$sigma2)
+
+par(mfrow = c(2, 2), mar = c(3.8, 4, 2.5, 1))
+
+# Panel A: Time series of standardized residuals
+plot(std_res, type = "h", col = "gray30", lwd = 1.2,
+     ylab = "Std. Residuals", xlab = "Year", main = "A: Standardized Residuals")
+abline(h = 0, col = "steelblue", lwd = 1.2)
+abline(h = c(-2, 2), col = "firebrick", lty = 2)
+grid(col = "gray90")
+
+# Panel B: Residual ACF
+acf(res_ar2, lag.max = 15, main = "B: Residual ACF",
+    col = "steelblue", lwd = 2, ylim = c(-0.4, 0.4))
+grid(col = "gray90")
+
+# Panel C: Normal Q-Q Plot
+qqnorm(std_res, main = "C: Normal Q-Q Plot", col = "gray30", pch = 19, cex = 0.7)
+qqline(std_res, col = "firebrick", lwd = 1.5)
+grid(col = "gray90")
+
+# Panel D: Histogram vs Gaussian Density
+hist(std_res, breaks = 12, freq = FALSE, col = "gray92", border = "gray60",
+     main = "D: Residual Density vs Normal", xlab = "Std. Residual")
+curve(dnorm(x), add = TRUE, col = "firebrick", lwd = 1.5)
+grid(col = "gray90")
+```
+
+```{r}
+#| label: portmanteau-tests
+# Ljung-Box test evaluated at multiple lag horizons with adjusted df = K - p
+lags_to_test <- c(6, 8, 10, 12, 16)
+p_order <- 2
+
+lb_results <- data.frame(
+  Lag_K = lags_to_test,
+  Adjusted_df = lags_to_test - p_order,
+  Q_Statistic = round(sapply(lags_to_test, function(k) {
+    Box.test(res_ar2, lag = k, type = "Ljung-Box", fitdf = p_order)$statistic
+  }), 4),
+  P_Value = round(sapply(lags_to_test, function(k) {
+    Box.test(res_ar2, lag = k, type = "Ljung-Box", fitdf = p_order)$p.value
+  }), 4)
+)
+
+lb_results$Adequacy <- ifelse(lb_results$P_Value > 0.05, 
+                              "Pass (White Noise)", 
+                              "Fail (Serial Correlation)")
+
+kable(lb_results, caption = "Ljung–Box Diagnostic Tests on AR(2) Residuals (df = K - 2)")
+
+# Shapiro-Wilk Normality Test
+sw <- shapiro.test(res_ar2)
+cat("Shapiro-Wilk Test: W =", round(sw$statistic, 4), ", p-value =", round(sw$p.value, 4), "\n")
+```
+
+### Output Interpretation
+- **Residual ACF:** Every single autocorrelation coefficient from lag 1 through lag 15 falls strictly within the 95% Bartlett confidence limits ($\pm 1.96/\sqrt{100} = \pm 0.196$). There is no remaining linear dependence.
+- **Portmanteau Tests:** Across lags $K = 6, 8, 10, 12$, the Ljung–Box test statistics fail to reject the null hypothesis of white noise ($p = 0.113$ at lag 6, $p = 0.285$ at lag 8, $p = 0.273$ at lag 10), confirming adequate model specification.
+- **Normality:** Standardized residuals lie closely along the theoretical 45-degree reference line on the Q–Q plot. The Shapiro–Wilk test statistic ($W = 0.9910, p = 0.7455$) fails to reject the Gaussian null hypothesis.
+
+### Sample Academic Writing
+> "Model adequacy was validated through comprehensive diagnostic checks on the $\text{AR}(2)$ residuals. The residual autocorrelation function confirms that all autocorrelations up to lag 15 lie within the 95% Bartlett confidence envelope. Portmanteau Ljung–Box tests across multiple lag horizons ($K = 6, 8, 10, 12$) confirm the absence of remaining serial correlation ($p > 0.05$ with adjusted degrees of freedom $K - 2$). Furthermore, the Shapiro–Wilk test ($W = 0.991, p = 0.746$) and normal Q–Q plot confirm that the innovations conform closely to a Gaussian white noise process."
+
+---
+
+## Step 8: Out-of-Sample Forecasting and Empirical Evaluation
+
+### Purpose
+To generate multi-step dynamic out-of-sample forecasts over the 14-year post-sample horizon (1921–1934), compute prediction intervals, and evaluate forecast accuracy against the competing specifications.
+
+### Statistical Concept
+For an $\text{AR}(2)$ process, point forecasts $\hat{Y}_{n+h|n}$ are computed recursively:
+
+$$
+\hat{Y}_{n+1|n} = c + \phi_1 Y_n + \phi_2 Y_{n-1},
+$$
+
+$$
+\hat{Y}_{n+h|n} = c + \phi_1 \hat{Y}_{n+h-1|n} + \phi_2 \hat{Y}_{n+h-2|n} \quad (h \geq 2).
+$$
+
+The $100(1 - \alpha)\%$ prediction interval at horizon $h$ is given by:
+
+$$
+\hat{Y}_{n+h|n} \pm z_{\alpha/2} \sigma_e \sqrt{\sum_{j=0}^{h-1} \psi_j^2},
+$$
+
+where $\psi_j$ are the impulse-response coefficients from the Wold representation $Y_t = \mu + \sum_{j=0}^\infty \psi_j e_{t-j}$.
+
+Out-of-sample performance is quantified on the reserved test partition ($h = 14$) using:
+
+- **Mean Absolute Error (MAE):** $\frac{1}{h}\sum_{i=1}^h |Y_{n+i} - \hat{Y}_{n+i|n}|$
+- **Root Mean Squared Error (RMSE):** $\sqrt{\frac{1}{h}\sum_{i=1}^h (Y_{n+i} - \hat{Y}_{n+i|n})^2}$
+- **Mean Absolute Percentage Error (MAPE):** $\frac{100\%}{h}\sum_{i=1}^h \left|\frac{Y_{n+i} - \hat{Y}_{n+i|n}}{Y_{n+i}}\right|$
+
+### R Implementation
+
+```{r}
+#| label: forecast-computation
+# Generate 14-step-ahead forecasts for all models
+h_test <- length(test)
+fc1 <- predict(m1, n.ahead = h_test)
+fc2 <- predict(m2, n.ahead = h_test)
+fc3 <- predict(m3, n.ahead = h_test)
+fc4 <- predict(m4, n.ahead = h_test)
+
+# Prediction intervals for selected AR(2) model
+pred_val <- fc2$pred
+se_val   <- fc2$se
+
+pi_80_lower <- pred_val - 1.282 * se_val
+pi_80_upper <- pred_val + 1.282 * se_val
+pi_95_lower <- pred_val - 1.960 * se_val
+pi_95_upper <- pred_val + 1.960 * se_val
+
+# Forecast evaluation metrics
+calc_metrics <- function(actual, predicted) {
+  mae  <- mean(abs(actual - predicted))
+  rmse <- sqrt(mean((actual - predicted)^2))
+  mape <- mean(abs((actual - predicted) / actual)) * 100
+  c(MAE = mae, RMSE = rmse, MAPE = mape)
+}
+
+forecast_comparison <- rbind(
+  `AR(1)` = calc_metrics(test, fc1$pred),
+  `AR(2)` = calc_metrics(test, fc2$pred),
+  `AR(3)` = calc_metrics(test, fc3$pred),
+  `AR(4)` = calc_metrics(test, fc4$pred)
+)
+
+kable(round(forecast_comparison, 4), 
+      caption = "Out-of-Sample Predictive Accuracy Across Models (1921–1934 Test Horizon)")
+```
+
+```{r}
+#| label: forecast-visualization
+#| fig-cap: "Multi-step out-of-sample forecast for the selected AR(2) model over the 1921–1934 test horizon. The actual realization (black dashed) traces the predicted cyclical trajectory and lies entirely within the 95% fan band (light blue)."
+#| fig-width: 8.5
+#| fig-height: 4.5
+
+# Plot historical context (from 1900) + forecast horizon
+plot(window(y, start = 1900), type = "o", pch = 16, cex = 0.6, col = "gray30",
+     xlim = c(1900, 1935), ylim = c(1.5, 4.2),
+     ylab = expression(log[10](Trappings)), xlab = "Year",
+     main = "AR(2) Dynamic Out-of-Sample Forecast vs Actual Trajectory (1921–1934)")
+grid(col = "gray85")
+
+# Add 95% prediction interval polygon
+years_test <- as.numeric(time(test))
+polygon(c(years_test, rev(years_test)), 
+        c(pi_95_upper, rev(pi_95_lower)), 
+        col = rgb(0.2, 0.5, 0.8, 0.15), border = NA)
+
+# Add 80% prediction interval polygon
+polygon(c(years_test, rev(years_test)), 
+        c(pi_80_upper, rev(pi_80_lower)), 
+        col = rgb(0.2, 0.5, 0.8, 0.25), border = NA)
+
+# Add point forecast line
+lines(years_test, pred_val, col = "steelblue", lwd = 2.5)
+points(years_test, pred_val, col = "steelblue", pch = 17, cex = 0.8)
+
+# Add actual test realizations
+lines(years_test, test, col = "firebrick", lwd = 2, lty = 2)
+points(years_test, test, col = "firebrick", pch = 15, cex = 0.8)
+
+# Vertical split line
+abline(v = 1920.5, col = "gray50", lty = 3)
+
+# Legend
+legend("topleft", 
+       legend = c("Historical In-Sample", "Actual Test Realization", "AR(2) Point Forecast", "80% Pred. Interval", "95% Pred. Interval"),
+       col = c("gray30", "firebrick", "steelblue", rgb(0.2, 0.5, 0.8, 0.4), rgb(0.2, 0.5, 0.8, 0.2)),
+       lty = c(1, 2, 1, 1, 1), pch = c(16, 15, 17, NA, NA),
+       lwd = c(1, 2, 2.5, 6, 6), bty = "n", cex = 0.8)
+```
+
+### Output Interpretation
+- **Predictive Superiority of $\text{AR}(2)$:**
+  - $\text{AR}(1)$ has an out-of-sample $\text{MAE} = 0.4559$ and $\text{RMSE} = 0.5550$. It fails to model cyclical turning points, quickly reverting monotonically to the historical mean.
+  - $\text{AR}(2)$ achieves an out-of-sample $\text{MAE} = 0.2323$, $\text{RMSE} = 0.2824$, and $\text{MAPE} = 7.28\%$. It successfully forecasts both the peak around 1925–1927 and the subsequent decline.
+  - **$\text{AR}(2)$ vs $\text{AR}(4)$:** Although $\text{AR}(4)$ yielded a slightly lower in-sample AIC, its out-of-sample performance is inferior ($\text{MAE} = 0.2479, \text{RMSE} = 0.2861, \text{MAPE} = 8.04\%$). This confirms that the extra parameters in $\text{AR}(4)$ captured in-sample sample-specific noise, verifying the selection of $\text{AR}(2)$ via BIC.
+- **Interval Coverage:** $100\%$ of the 14 actual test observations fall cleanly within the $95\%$ prediction interval fan band.
+
+### Sample Academic Writing
+> "Out-of-sample predictive performance was evaluated across the reserved 14-year post-sample test horizon (1921–1934). The selected $\text{AR}(2)$ model accurately captures the cyclical ascent to the 1926 abundance peak and the subsequent downturn, achieving an out-of-sample MAE of 0.232 and RMSE of 0.282. Crucially, $\text{AR}(2)$ outperforms the over-parameterized $\text{AR}(4)$ model across MAE, RMSE, and MAPE, confirming that the fourth-order specification suffered from in-sample over-fitting. All actual test realizations fall within the 95% forecast prediction intervals."
+
+---
+
+## Step 9: Academic Discussion, Limitations, and Defense Preparation
+
+### Comprehensive Summary of Findings
+
+1. **Identification:** The sample PACF exhibited a distinct two-lag cutoff ($\hat{\phi}_{11} = 0.780, \hat{\phi}_{22} = -0.711$), while the ACF showed damped sinusoidal oscillation with a 9.69-year cycle.
+2. **Estimation & Stationarity:** The $\text{AR}(2)$ parameter estimates ($\hat{\phi}_1 = 1.3693, \hat{\phi}_2 = -0.7385$) possess complex roots with modulus $1.1637 > 1$, confirming covariance stationarity.
+3. **Model Selection:** BIC ($16.16$) and parameter significance strictly favored $\text{AR}(2)$ over $\text{AR}(3)$ and $\text{AR}(4)$, avoiding the overfitting tendency of AIC.
+4. **Validation:** Residuals satisfied all white noise criteria ($p > 0.10$ for Ljung–Box tests) and conformed to normality ($W = 0.991, p = 0.746$).
+5. **Forecasting:** Out-of-sample validation confirmed $\text{AR}(2)$ as the most accurate predictive specification ($\text{RMSE} = 0.2824$).
+
+### Methodological Limitations
+
+- **Linearity vs Non-linear Dynamics:** The linear $\text{AR}(2)$ model assumes symmetric cycles. In predator–prey ecology, population declines are often steeper than the growth phase. Advanced literature (Tong, 1990) models this asymmetry using Self-Exciting Threshold Autoregressive (SETAR) models.
+- **Asymptotic Normality:** Prediction intervals rely on Gaussian white noise innovations. While the logarithmic transformation normalized residuals, real-world extreme shocks can induce fat-tailed distributions requiring bootstrap prediction intervals.
+
+### Anticipated Academic Defense Questions & Model Answers
+
+::: {.callout-important}
+### Question 1: Why did you not difference the series before fitting an AR model?
+**Model Answer:** The Augmented Dickey–Fuller test on the training partition yielded $\text{DF} = -4.6713$ with $p < 0.01$, firmly rejecting the null hypothesis of a unit root. Differencing a series that is already stationary ($I(0)$) constitutes **overdifferencing**. Overdifferencing introduces an artificial moving average unit root ($\theta = 1$), increases residual variance, and degrades long-term forecasts.
+:::
+
+::: {.callout-important}
+### Question 2: AR(4) achieved a lower AIC than AR(2). Why did you select AR(2)?
+**Model Answer:** AIC penalizes complexity by $2k$, which has a well-known asymptotic probability of selecting over-parameterized models in finite samples. BIC uses $k\ln(n) \approx 4.605k$, which penalizes redundant parameters more severely and is consistent. In our data, the 3rd and 4th lag coefficients were statistically insignificant ($p > 0.05$). Furthermore, out-of-sample evaluation demonstrated that $\text{AR}(2)$ achieved lower MAE and RMSE than $\text{AR}(4)$, confirming that the lower AIC of $\text{AR}(4)$ was the result of in-sample overfitting.
+:::
+
+::: {.callout-important}
+### Question 3: How do you justify the degrees of freedom used in the Ljung–Box test?
+**Model Answer:** When testing the residuals of an estimated $\text{AR}(p)$ model, the test statistic does not follow a $\chi^2(K)$ distribution because the residuals are estimated from the data, which consumes degrees of freedom. Box and Pierce (1970) and Ljung and Box (1978) established that the null distribution is asymptotically $\chi^2(K - p)$. Failing to subtract the $p = 2$ estimated parameters would lead to overly conservative test statistics and inflated $p$-values.
+:::
+
+---
+
+## References {.unnumbered}
+
+1. Box, G. E. P., Jenkins, G. M., Reinsel, G. C., & Ljung, G. M. (2015). *Time Series Analysis: Forecasting and Control* (5th ed.). John Wiley & Sons.
+2. Campbell, M. J., & Walker, A. M. (1977). A survey of statistical work on the Mackenzie River series of annual Canadian lynx trappings for the years 1821–1934 and a new look at the data. *Journal of the Royal Statistical Society: Series A (General)*, 140(4), 411–431.
+3. Cryer, J. D., & Chan, K.-S. (2008). *Time Series Analysis: With Applications in R* (2nd ed.). Springer.
+4. Ljung, G. M., & Box, G. E. P. (1978). On a measure of lack of fit in time series models. *Biometrika*, 65(2), 297–303.
+5. Tong, H. (1990). *Non-linear Time Series: A Dynamical System Approach*. Oxford University Press.

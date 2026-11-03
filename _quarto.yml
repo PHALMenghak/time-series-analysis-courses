@@ -4,6 +4,9 @@ project:
   render:
     - index.qmd
     - practice/ch01-introduction.qmd
+    - practice/tsa-empirical-ar.qmd
+    - practice/tsa-financial-ar.qmd
+    - practice/Gold_Price_Forecasting.qmd
     - TP01/tp01.qmd
     - TP02/tp02.qmd
     - assignments/index.qmd
@@ -19,6 +22,12 @@ website:
         menu:
           - text: "Ch 01 · Introduction"
             href: practice/ch01-introduction.qmd
+          - text: "Ch 04 · Empirical AR(p) Modeling (Lynx)"
+            href: practice/tsa-empirical-ar.qmd
+          - text: "Ch 05 · Financial AR(p) Modeling (EuStockMarkets)"
+            href: practice/tsa-financial-ar.qmd
+          - text: "Gold Price Forecasting (5 Models)"
+            href: practice/Gold_Price_Forecasting.qmd
       - text: Practicals
         menu:
           - text: "TP 01 · Introduction"
