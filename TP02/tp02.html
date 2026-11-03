@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.19">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="PHAL Menghak">
-<meta name="dcterms.date" content="2026-10-22">
+<meta name="dcterms.date" content="2026-11-03">
 
-<title>TP 02 · Fundamental mathematical concepts – I5TSA | Time Series Analysis</title>
+<title>TD/TP 02 — Fundamental Mathematical Concepts – I5TSA | Time Series Analysis</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -75,14 +75,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-5de16f5e46225c21e2daa90d340bf64f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d3c09cf01b9717715406c5b992d80823.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-6be18cd9050b6bc5fcbeb6ee800366bc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -144,19 +145,18 @@ window.Quarto = {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">I5TSA | Time Series Analysis</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -173,6 +173,18 @@ window.Quarto = {
         <li>
     <a class="dropdown-item" href="../practice/ch01-introduction.html">
  <span class="dropdown-text">Ch 01 · Introduction</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../practice/tsa-empirical-ar.html">
+ <span class="dropdown-text">Ch 04 · Empirical AR(p) Modeling (Lynx)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../practice/tsa-financial-ar.html">
+ <span class="dropdown-text">Ch 05 · Financial AR(p) Modeling (EuStockMarkets)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../practice/Gold_Price_Forecasting.html">
+ <span class="dropdown-text">Gold Price Forecasting (5 Models)</span></a>
   </li>  
     </ul>
   </li>
@@ -199,6 +211,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -207,26 +220,59 @@ window.Quarto = {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
    
   <ul>
-  <li><a href="#objectives" id="toc-objectives" class="nav-link active" data-scroll-target="#objectives"><span class="header-section-number">1</span> Objectives</a></li>
-  <li><a href="#exercise-tracker" id="toc-exercise-tracker" class="nav-link" data-scroll-target="#exercise-tracker"><span class="header-section-number">2</span> Exercise tracker</a></li>
-  <li><a href="#derivation-template" id="toc-derivation-template" class="nav-link" data-scroll-target="#derivation-template"><span class="header-section-number">3</span> Derivation template</a></li>
-  <li><a href="#exercise-2.4-ma1-process" id="toc-exercise-2.4-ma1-process" class="nav-link" data-scroll-target="#exercise-2.4-ma1-process"><span class="header-section-number">4</span> Exercise 2.4 · MA(1) process</a></li>
-  <li><a href="#exercise-2.5-trend-plus-stationary-component" id="toc-exercise-2.5-trend-plus-stationary-component" class="nav-link" data-scroll-target="#exercise-2.5-trend-plus-stationary-component"><span class="header-section-number">5</span> Exercise 2.5 · Trend plus stationary component</a></li>
-  <li><a href="#remaining-exercises" id="toc-remaining-exercises" class="nav-link" data-scroll-target="#remaining-exercises"><span class="header-section-number">6</span> Remaining exercises</a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link active" data-scroll-target="#objectives">Objectives</a></li>
+  <li><a href="#notation-and-assumptions" id="toc-notation-and-assumptions" class="nav-link" data-scroll-target="#notation-and-assumptions"><span class="header-section-number">1</span> Notation and Assumptions</a></li>
+  <li><a href="#exercise-2.4-ma1-process" id="toc-exercise-2.4-ma1-process" class="nav-link" data-scroll-target="#exercise-2.4-ma1-process"><span class="header-section-number">2</span> Exercise 2.4 — MA(1) Process</a>
+  <ul class="collapse">
+  <li><a href="#part-a-autocorrelation-function" id="toc-part-a-autocorrelation-function" class="nav-link" data-scroll-target="#part-a-autocorrelation-function"><span class="header-section-number">2.1</span> Part (a): Autocorrelation function</a></li>
+  <li><a href="#part-b-identification-from-the-sample-acf" id="toc-part-b-identification-from-the-sample-acf" class="nav-link" data-scroll-target="#part-b-identification-from-the-sample-acf"><span class="header-section-number">2.2</span> Part (b): Identification from the sample ACF</a></li>
+  </ul></li>
+  <li><a href="#exercise-2.5-linear-trend-plus-stationary-component" id="toc-exercise-2.5-linear-trend-plus-stationary-component" class="nav-link" data-scroll-target="#exercise-2.5-linear-trend-plus-stationary-component"><span class="header-section-number">3</span> Exercise 2.5 — Linear Trend Plus Stationary Component</a>
+  <ul class="collapse">
+  <li><a href="#part-a-mean-function" id="toc-part-a-mean-function" class="nav-link" data-scroll-target="#part-a-mean-function"><span class="header-section-number">3.1</span> Part (a): Mean function</a></li>
+  <li><a href="#part-b-autocovariance-function" id="toc-part-b-autocovariance-function" class="nav-link" data-scroll-target="#part-b-autocovariance-function"><span class="header-section-number">3.2</span> Part (b): Autocovariance function</a></li>
+  <li><a href="#part-c-stationarity" id="toc-part-c-stationarity" class="nav-link" data-scroll-target="#part-c-stationarity"><span class="header-section-number">3.3</span> Part (c): Stationarity</a></li>
+  </ul></li>
+  <li><a href="#exercise-2.8-finite-linear-filter" id="toc-exercise-2.8-finite-linear-filter" class="nav-link" data-scroll-target="#exercise-2.8-finite-linear-filter"><span class="header-section-number">4</span> Exercise 2.8 — Finite Linear Filter</a></li>
+  <li><a href="#exercise-2.9-differencing-a-polynomial-trend" id="toc-exercise-2.9-differencing-a-polynomial-trend" class="nav-link" data-scroll-target="#exercise-2.9-differencing-a-polynomial-trend"><span class="header-section-number">5</span> Exercise 2.9 — Differencing a Polynomial Trend</a>
+  <ul class="collapse">
+  <li><a href="#part-a-first-difference-w_t-nabla-y_t" id="toc-part-a-first-difference-w_t-nabla-y_t" class="nav-link" data-scroll-target="#part-a-first-difference-w_t-nabla-y_t"><span class="header-section-number">5.1</span> Part (a): First difference <span class="math inline">\(W_t = \nabla Y_t\)</span></a></li>
+  <li><a href="#part-b-general-polynomial-trend-of-degree-d" id="toc-part-b-general-polynomial-trend-of-degree-d" class="nav-link" data-scroll-target="#part-b-general-polynomial-trend-of-degree-d"><span class="header-section-number">5.2</span> Part (b): General polynomial trend of degree <span class="math inline">\(d\)</span></a></li>
+  </ul></li>
+  <li><a href="#exercise-2.12-seasonal-difference-of-white-noise" id="toc-exercise-2.12-seasonal-difference-of-white-noise" class="nav-link" data-scroll-target="#exercise-2.12-seasonal-difference-of-white-noise"><span class="header-section-number">6</span> Exercise 2.12 — Seasonal Difference of White Noise</a></li>
+  <li><a href="#exercise-2.14-transformed-processes" id="toc-exercise-2.14-transformed-processes" class="nav-link" data-scroll-target="#exercise-2.14-transformed-processes"><span class="header-section-number">7</span> Exercise 2.14 — Transformed Processes</a>
+  <ul class="collapse">
+  <li><a href="#part-a-y_t-theta_0-te_t" id="toc-part-a-y_t-theta_0-te_t" class="nav-link" data-scroll-target="#part-a-y_t-theta_0-te_t"><span class="header-section-number">7.1</span> Part (a): <span class="math inline">\(Y_t = \theta_0 + t\,e_t\)</span></a></li>
+  <li><a href="#part-b-w_t-nabla-y_t-with-y_t-as-above" id="toc-part-b-w_t-nabla-y_t-with-y_t-as-above" class="nav-link" data-scroll-target="#part-b-w_t-nabla-y_t-with-y_t-as-above"><span class="header-section-number">7.2</span> Part (b): <span class="math inline">\(W_t = \nabla Y_t\)</span> (with <span class="math inline">\(Y_t\)</span> as above)</a></li>
+  <li><a href="#part-c-y_t-e_te_t-1-gaussian-white-noise" id="toc-part-c-y_t-e_te_t-1-gaussian-white-noise" class="nav-link" data-scroll-target="#part-c-y_t-e_te_t-1-gaussian-white-noise"><span class="header-section-number">7.3</span> Part (c): <span class="math inline">\(Y_t = e_t\,e_{t-1}\)</span> (Gaussian white noise)</a></li>
+  </ul></li>
+  <li><a href="#exercise-2.17-variance-of-the-sample-mean" id="toc-exercise-2.17-variance-of-the-sample-mean" class="nav-link" data-scroll-target="#exercise-2.17-variance-of-the-sample-mean"><span class="header-section-number">8</span> Exercise 2.17 — Variance of the Sample Mean</a></li>
+  <li><a href="#exercise-2.23-sum-of-independent-stationary-processes" id="toc-exercise-2.23-sum-of-independent-stationary-processes" class="nav-link" data-scroll-target="#exercise-2.23-sum-of-independent-stationary-processes"><span class="header-section-number">9</span> Exercise 2.23 — Sum of Independent Stationary Processes</a></li>
+  <li><a href="#exercise-2.26-semivariogram-and-intrinsic-stationarity" id="toc-exercise-2.26-semivariogram-and-intrinsic-stationarity" class="nav-link" data-scroll-target="#exercise-2.26-semivariogram-and-intrinsic-stationarity"><span class="header-section-number">10</span> Exercise 2.26 — Semivariogram and Intrinsic Stationarity</a>
+  <ul class="collapse">
+  <li><a href="#part-a-stationary-process" id="toc-part-a-stationary-process" class="nav-link" data-scroll-target="#part-a-stationary-process"><span class="header-section-number">10.1</span> Part (a): Stationary process</a></li>
+  <li><a href="#part-b-random-walk" id="toc-part-b-random-walk" class="nav-link" data-scroll-target="#part-b-random-walk"><span class="header-section-number">10.2</span> Part (b): Random walk</a></li>
+  </ul></li>
+  <li><a href="#exercise-2.27-finite-moving-average-process" id="toc-exercise-2.27-finite-moving-average-process" class="nav-link" data-scroll-target="#exercise-2.27-finite-moving-average-process"><span class="header-section-number">11</span> Exercise 2.27 — Finite Moving-Average Process</a>
+  <ul class="collapse">
+  <li><a href="#part-a-stationarity-for-any-phi" id="toc-part-a-stationarity-for-any-phi" class="nav-link" data-scroll-target="#part-a-stationarity-for-any-phi"><span class="header-section-number">11.1</span> Part (a): Stationarity for any <span class="math inline">\(\phi\)</span></a></li>
+  <li><a href="#part-b-autocorrelation-function" id="toc-part-b-autocorrelation-function" class="nav-link" data-scroll-target="#part-b-autocorrelation-function"><span class="header-section-number">11.2</span> Part (b): Autocorrelation function</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">12</span> Summary</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">TP 02 · Fundamental mathematical concepts</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
-<p class="subtitle lead">Stationarity, covariance, and differencing</p>
+<div class="quarto-title-block"><div><h1 class="title">TD/TP 02 — Fundamental Mathematical Concepts</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Stationarity, Autocovariance, and Differencing</p>
 </div>
 
 
@@ -243,7 +289,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 22, 2026</p>
+      <p class="date">3 November 2026</p>
     </div>
   </div>
   
@@ -255,104 +301,516 @@ window.Quarto = {
 </header>
 
 
-<section id="objectives" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="objectives"><span class="header-section-number">1</span> Objectives</h2>
+<section id="objectives" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="objectives">Objectives</h2>
 <ul>
-<li>State the assumptions behind covariance stationarity.</li>
-<li>Derive mean, autocovariance, and autocorrelation functions.</li>
-<li>Explain what differencing changes in a trend or seasonal process.</li>
-<li>Check an analytic argument with a short R simulation when useful.</li>
+<li>State the conditions for covariance stationarity.</li>
+<li>Derive the mean, autocovariance, and autocorrelation functions for various processes.</li>
+<li>Show how differencing eliminates deterministic polynomial and seasonal trends.</li>
+<li>Verify analytical results with short R simulations where instructive.</li>
 </ul>
+<hr>
 </section>
-<section id="exercise-tracker" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="exercise-tracker"><span class="header-section-number">2</span> Exercise tracker</h2>
+<section id="notation-and-assumptions" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="notation-and-assumptions"><span class="header-section-number">1</span> Notation and Assumptions</h2>
+<p>Throughout this document, <span class="math inline">\(\{e_t\}\)</span> denotes a <strong>zero-mean white noise</strong> process satisfying</p>
+<p><span class="math display">\[
+E(e_t) = 0, \qquad
+\operatorname{Var}(e_t) = \sigma_e^2, \qquad
+\operatorname{Cov}(e_t, e_s) = 0 \quad (t \neq s).
+\]</span></p>
+<p>A process <span class="math inline">\(\{Y_t\}\)</span> is <strong>covariance stationary</strong> if</p>
+<ol type="1">
+<li><span class="math inline">\(E(Y_t) = \mu\)</span> for all <span class="math inline">\(t\)</span> (constant mean), and</li>
+<li><span class="math inline">\(\operatorname{Cov}(Y_t, Y_{t-k}) = \gamma_k\)</span> for all <span class="math inline">\(t\)</span> (autocovariance depends only on lag <span class="math inline">\(k\)</span>).</li>
+</ol>
+<p>The <strong>autocorrelation function</strong> (ACF) is defined as <span class="math display">\[
+\rho_k = \frac{\gamma_k}{\gamma_0}, \qquad k = 0, \pm 1, \pm 2, \ldots
+\]</span></p>
+<hr>
+</section>
+<section id="exercise-2.4-ma1-process" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="exercise-2.4-ma1-process"><span class="header-section-number">2</span> Exercise 2.4 — MA(1) Process</h2>
+<p><strong>Given.</strong> Let <span class="math inline">\(\{e_t\}\)</span> be zero-mean white noise and define <span class="math display">\[
+Y_t = e_t + \theta e_{t-1}, \qquad \theta \in \bigl\{3,\; \tfrac{1}{3}\bigr\}.
+\]</span></p>
+<section id="part-a-autocorrelation-function" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="part-a-autocorrelation-function"><span class="header-section-number">2.1</span> Part (a): Autocorrelation function</h3>
+<p><strong>Mean.</strong> <span class="math display">\[
+E(Y_t) = E(e_t) + \theta\, E(e_{t-1}) = 0.
+\]</span></p>
+<p><strong>Variance.</strong> <span class="math display">\[
+\gamma_0 = \operatorname{Var}(Y_t)
+         = \operatorname{Var}(e_t) + \theta^2 \operatorname{Var}(e_{t-1})
+         = \sigma_e^2(1 + \theta^2).
+\]</span></p>
+<p><strong>Lag-1 autocovariance.</strong> <span class="math display">\[
+\gamma_1 = \operatorname{Cov}(Y_t, Y_{t-1})
+         = E\bigl[(e_t + \theta e_{t-1})(e_{t-1} + \theta e_{t-2})\bigr]
+         = \theta\, E(e_{t-1}^2)
+         = \theta\sigma_e^2.
+\]</span></p>
+<p><strong>Lag <span class="math inline">\(|k| \geq 2\)</span>.</strong> The sets <span class="math inline">\(\{t, t-1\}\)</span> and <span class="math inline">\(\{t-k, t-k-1\}\)</span> are disjoint, so <span class="math inline">\(\gamma_k = 0\)</span>.</p>
+<p><strong>ACF.</strong> <span class="math display">\[
+\rho_k = \begin{cases}
+  1 &amp; k = 0, \\[4pt]
+  \dfrac{\theta}{1 + \theta^2} &amp; |k| = 1, \\[6pt]
+  0 &amp; |k| \geq 2.
+\end{cases}
+\]</span></p>
+<p>Evaluating at the two specified values:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>Exercise</th>
-<th>Main topic</th>
-<th>Progress</th>
+<th style="text-align: center;"><span class="math inline">\(\theta\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\rho_1 = \theta/(1+\theta^2)\)</span></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>2.4</td>
-<td>MA(1) and equivalent autocorrelation</td>
-<td>To do</td>
+<td style="text-align: center;"><span class="math inline">\(3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3/10 = 0.3\)</span></td>
 </tr>
 <tr class="even">
-<td>2.5</td>
-<td>Linear trend plus stationary noise</td>
-<td>To do</td>
-</tr>
-<tr class="odd">
-<td>2.8</td>
-<td>Finite linear filter</td>
-<td>To do</td>
-</tr>
-<tr class="even">
-<td>2.9</td>
-<td>Differencing a polynomial trend</td>
-<td>To do</td>
-</tr>
-<tr class="odd">
-<td>2.12</td>
-<td>Seasonal difference of white noise</td>
-<td>To do</td>
-</tr>
-<tr class="even">
-<td>2.14</td>
-<td>Mean and covariance of transformed processes</td>
-<td>To do</td>
-</tr>
-<tr class="odd">
-<td>2.17</td>
-<td>Variance of a sample mean</td>
-<td>To do</td>
-</tr>
-<tr class="even">
-<td>2.23</td>
-<td>Sum of independent stationary processes</td>
-<td>To do</td>
-</tr>
-<tr class="odd">
-<td>2.26</td>
-<td>Semivariogram and intrinsic stationarity</td>
-<td>To do</td>
-</tr>
-<tr class="even">
-<td>2.27</td>
-<td>Finite moving-average process</td>
-<td>To do</td>
+<td style="text-align: center;"><span class="math inline">\(1/3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((1/3)/(1 + 1/9) = (1/3)/(10/9) = 3/10 = 0.3\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>The tracker follows the second course handout. Consult it for the full wording and all subparts.</p>
+<p>Both processes share <strong>identical</strong> ACFs.</p>
 </section>
-<section id="derivation-template" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="derivation-template"><span class="header-section-number">3</span> Derivation template</h2>
-<p>Copy this pattern under each exercise:</p>
-<ol type="1">
-<li><strong>Assumptions:</strong> Define the process and the properties of the innovations.</li>
-<li><strong>Mean:</strong> Calculate <span class="math inline">\(E(Y_t)\)</span> and check whether it depends on <span class="math inline">\(t\)</span>.</li>
-<li><strong>Autocovariance:</strong> Calculate <span class="math inline">\(\operatorname{Cov}(Y_t,Y_{t-k})\)</span> and check whether it depends only on <span class="math inline">\(k\)</span>.</li>
-<li><strong>Conclusion:</strong> State the stationarity result and justify it.</li>
-<li><strong>R check (optional):</strong> Simulate with a fixed seed; use it as a check, not as proof.</li>
-</ol>
+<section id="part-b-identification-from-the-sample-acf" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="part-b-identification-from-the-sample-acf"><span class="header-section-number">2.2</span> Part (b): Identification from the sample ACF</h3>
+<p>Because <span class="math inline">\(\theta = 3\)</span> and <span class="math inline">\(\theta = 1/3\)</span> yield the same ACF, no estimator <span class="math inline">\(\hat{\rho}_k\)</span> — however precise — can distinguish between them. This is a consequence of <strong>MA(1) invertibility aliasing</strong>: for any solution <span class="math inline">\(\theta\)</span>, the reciprocal <span class="math inline">\(1/\theta\)</span> produces an equivalent ACF. Uniqueness is restored by imposing the <strong>invertibility condition</strong> <span class="math inline">\(|\theta| &lt; 1\)</span>, which selects <span class="math inline">\(\theta = 1/3\)</span>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>sim_ma1 <span class="ot">&lt;-</span> <span class="cf">function</span>(theta, <span class="at">n =</span> <span class="dv">500</span>) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tail</span>(e[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">+</span> theta <span class="sc">*</span> e[<span class="sc">-</span>(n <span class="sc">+</span> <span class="dv">1</span>)], n)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>y3   <span class="ot">&lt;-</span> <span class="fu">sim_ma1</span>(<span class="dv">3</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>y1_3 <span class="ot">&lt;-</span> <span class="fu">sim_ma1</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="dv">3</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(y3,   <span class="at">main =</span> <span class="fu">expression</span>(theta <span class="sc">==</span> <span class="dv">3</span>),   <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(y1_3, <span class="at">main =</span> <span class="fu">expression</span>(theta <span class="sc">==</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>), <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tp02_files/figure-html/ex2-4-check-1.png" class="img-fluid figure-img" width="768"></p>
+<figcaption>Sample ACFs for MA(1) with θ = 3 and θ = 1/3 (n = 500)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
 </section>
-<section id="exercise-2.4-ma1-process" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="exercise-2.4-ma1-process"><span class="header-section-number">4</span> Exercise 2.4 · MA(1) process</h2>
-<p>For <span class="math inline">\(Y_t=e_t+\theta e_{t-1}\)</span>, work through both specified values of <span class="math inline">\(\theta\)</span>. Show the variance and the nonzero autocovariances before calculating <span class="math inline">\(\rho_k\)</span>. Then address why the sample autocorrelation may or may not distinguish the two processes.</p>
-<p><strong>Derivation:</strong> To complete.</p>
 </section>
-<section id="exercise-2.5-trend-plus-stationary-component" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="exercise-2.5-trend-plus-stationary-component"><span class="header-section-number">5</span> Exercise 2.5 · Trend plus stationary component</h2>
-<p>For <span class="math inline">\(Y_t=5+2t+X_t\)</span>, find the mean function and autocovariance, then give a stationarity conclusion.</p>
-<p><strong>Derivation:</strong> To complete.</p>
+<section id="exercise-2.5-linear-trend-plus-stationary-component" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="exercise-2.5-linear-trend-plus-stationary-component"><span class="header-section-number">3</span> Exercise 2.5 — Linear Trend Plus Stationary Component</h2>
+<p><strong>Given.</strong> <span class="math inline">\(Y_t = 5 + 2t + X_t\)</span>, where <span class="math inline">\(\{X_t\}\)</span> is zero-mean stationary with autocovariance <span class="math inline">\(\gamma_k^X\)</span>.</p>
+<section id="part-a-mean-function" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="part-a-mean-function"><span class="header-section-number">3.1</span> Part (a): Mean function</h3>
+<p><span class="math display">\[
+\mu_t = E(Y_t) = 5 + 2t + E(X_t) = 5 + 2t.
+\]</span></p>
+<p>The mean is a linear function of <span class="math inline">\(t\)</span>.</p>
 </section>
-<section id="remaining-exercises" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="remaining-exercises"><span class="header-section-number">6</span> Remaining exercises</h2>
-<p>Add a section for each row in the tracker as you work. Keep algebra legible with Quarto math notation and put any simulation immediately after the result it checks.</p>
+<section id="part-b-autocovariance-function" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="part-b-autocovariance-function"><span class="header-section-number">3.2</span> Part (b): Autocovariance function</h3>
+<p>Constants are absorbed by the expectation operator, so <span class="math display">\[
+\operatorname{Cov}(Y_t, Y_{t-k})
+  = \operatorname{Cov}(X_t, X_{t-k})
+  = \gamma_k^X.
+\]</span></p>
+<p>The autocovariance depends only on the lag <span class="math inline">\(k\)</span>.</p>
+</section>
+<section id="part-c-stationarity" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="part-c-stationarity"><span class="header-section-number">3.3</span> Part (c): Stationarity</h3>
+<p><span class="math inline">\(\{Y_t\}\)</span> is <strong>not stationary</strong>. Although the autocovariance satisfies the second condition, the mean <span class="math inline">\(\mu_t = 5 + 2t\)</span> varies with <span class="math inline">\(t\)</span>, violating the first condition. Both conditions must hold simultaneously.</p>
+<hr>
+</section>
+</section>
+<section id="exercise-2.8-finite-linear-filter" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="exercise-2.8-finite-linear-filter"><span class="header-section-number">4</span> Exercise 2.8 — Finite Linear Filter</h2>
+<p><strong>Given.</strong> <span class="math inline">\(\{Y_t\}\)</span> is stationary with mean <span class="math inline">\(\mu\)</span> and autocovariance <span class="math inline">\(\gamma_k\)</span>. Define the linear filter <span class="math display">\[
+W_t = \sum_{j=1}^{n} c_j\, Y_{t-j+1},
+\]</span> for fixed constants <span class="math inline">\(c_1, \ldots, c_n\)</span>.</p>
+<p><strong>Claim.</strong> <span class="math inline">\(\{W_t\}\)</span> is covariance stationary.</p>
+<p><strong>Proof.</strong></p>
+<p><em>Mean.</em> <span class="math display">\[
+E(W_t) = \sum_{j=1}^{n} c_j\, E(Y_{t-j+1}) = \mu \sum_{j=1}^{n} c_j,
+\]</span> which is constant.</p>
+<p><em>Autocovariance.</em> By bilinearity of covariance, <span class="math display">\[
+\operatorname{Cov}(W_t, W_{t-k})
+  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\,
+    \operatorname{Cov}(Y_{t-i+1},\, Y_{t-k-j+1}).
+\]</span></p>
+<p>Since <span class="math inline">\(\{Y_t\}\)</span> is stationary, <span class="math inline">\(\operatorname{Cov}(Y_{t-i+1}, Y_{t-k-j+1}) = \gamma_{k+j-i}\)</span>, which depends only on the lag. Therefore <span class="math display">\[
+\operatorname{Cov}(W_t, W_{t-k})
+  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\, \gamma_{k+j-i},
+\]</span> a function of <span class="math inline">\(k\)</span> alone. Hence <span class="math inline">\(\{W_t\}\)</span> is covariance stationary. <span class="math inline">\(\blacksquare\)</span></p>
+<hr>
+</section>
+<section id="exercise-2.9-differencing-a-polynomial-trend" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="exercise-2.9-differencing-a-polynomial-trend"><span class="header-section-number">5</span> Exercise 2.9 — Differencing a Polynomial Trend</h2>
+<p><strong>Given.</strong> <span class="math inline">\(Y_t = \beta_0 + \beta_1 t + X_t\)</span>, where <span class="math inline">\(\{X_t\}\)</span> is zero-mean stationary with autocovariance <span class="math inline">\(\gamma_k^X\)</span>.</p>
+<section id="part-a-first-difference-w_t-nabla-y_t" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="part-a-first-difference-w_t-nabla-y_t"><span class="header-section-number">5.1</span> Part (a): First difference <span class="math inline">\(W_t = \nabla Y_t\)</span></h3>
+<p><span class="math inline">\(\{Y_t\}\)</span> is <strong>not stationary</strong> because <span class="math inline">\(E(Y_t) = \beta_0 + \beta_1 t\)</span> depends on <span class="math inline">\(t\)</span>.</p>
+<p>Apply the first-difference operator <span class="math inline">\(\nabla\)</span>: <span class="math display">\[
+W_t = Y_t - Y_{t-1}
+    = \bigl(\beta_0 + \beta_1 t + X_t\bigr) - \bigl(\beta_0 + \beta_1(t-1) + X_{t-1}\bigr)
+    = \beta_1 + (X_t - X_{t-1}).
+\]</span></p>
+<p><em>Mean.</em> <span class="math inline">\(E(W_t) = \beta_1\)</span> (constant).</p>
+<p><em>Autocovariance.</em> <span class="math display">\[
+\operatorname{Cov}(W_t, W_{t-k})
+  = \operatorname{Cov}(X_t - X_{t-1},\; X_{t-k} - X_{t-k-1})
+  = 2\gamma_k^X - \gamma_{k-1}^X - \gamma_{k+1}^X,
+\]</span> which depends only on <span class="math inline">\(k\)</span>. Hence <span class="math inline">\(\{W_t\}\)</span> is <strong>stationary</strong>. <span class="math inline">\(\blacksquare\)</span></p>
+</section>
+<section id="part-b-general-polynomial-trend-of-degree-d" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="part-b-general-polynomial-trend-of-degree-d"><span class="header-section-number">5.2</span> Part (b): General polynomial trend of degree <span class="math inline">\(d\)</span></h3>
+<p>Let <span class="math inline">\(\mu_t\)</span> be a polynomial in <span class="math inline">\(t\)</span> of degree <span class="math inline">\(d\)</span>. The operator <span class="math inline">\(\nabla\)</span> reduces the degree by one: <span class="math inline">\(\nabla \mu_t\)</span> has degree <span class="math inline">\(d - 1\)</span>. By induction, <span class="math inline">\(\nabla^m \mu_t = 0\)</span> for <span class="math inline">\(m \geq d\)</span> (or equals a nonzero constant when <span class="math inline">\(m = d\)</span>).</p>
+<ul>
+<li>If <span class="math inline">\(m \geq d\)</span>: the polynomial part vanishes after <span class="math inline">\(m\)</span> differences and <span class="math inline">\(\nabla^m X_t\)</span> remains stationary (by Exercise 2.8), so <span class="math inline">\(\nabla^m Y_t\)</span> is <strong>stationary</strong>.</li>
+<li>If <span class="math inline">\(0 \leq m &lt; d\)</span>: <span class="math inline">\(\nabla^m \mu_t\)</span> is still a nonconstant polynomial in <span class="math inline">\(t\)</span>, so <span class="math inline">\(E(\nabla^m Y_t)\)</span> depends on <span class="math inline">\(t\)</span> and <span class="math inline">\(\nabla^m Y_t\)</span> is <strong>not stationary</strong>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercise-2.12-seasonal-difference-of-white-noise" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="exercise-2.12-seasonal-difference-of-white-noise"><span class="header-section-number">6</span> Exercise 2.12 — Seasonal Difference of White Noise</h2>
+<p><strong>Given.</strong> <span class="math inline">\(Y_t = e_t - e_{t-12}\)</span>.</p>
+<p><strong>Mean.</strong> <span class="math display">\[
+E(Y_t) = E(e_t) - E(e_{t-12}) = 0.
+\]</span></p>
+<p><strong>Autocovariance.</strong> Expanding <span class="math inline">\(\operatorname{Cov}(e_t - e_{t-12},\; e_{t-k} - e_{t-k-12})\)</span> and applying white-noise uncorrelatedness:</p>
+<p><span class="math display">\[
+\gamma_k = \begin{cases}
+  2\sigma_e^2  &amp; k = 0,       \\
+  -\sigma_e^2  &amp; |k| = 12,    \\
+  0            &amp; \text{otherwise.}
+\end{cases}
+\]</span></p>
+<p><strong>ACF.</strong> <span class="math display">\[
+\rho_k = \begin{cases}
+  1            &amp; k = 0,       \\
+  -\tfrac{1}{2} &amp; |k| = 12,  \\
+  0            &amp; \text{otherwise.}
+\end{cases}
+\]</span></p>
+<p><strong>Conclusion.</strong> The mean is constant and <span class="math inline">\(\gamma_k\)</span> depends only on <span class="math inline">\(k\)</span>, so <span class="math inline">\(\{Y_t\}\)</span> is <strong>stationary</strong>. The ACF is nonzero only at lag 12. <span class="math inline">\(\blacksquare\)</span></p>
+<hr>
+</section>
+<section id="exercise-2.14-transformed-processes" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="exercise-2.14-transformed-processes"><span class="header-section-number">7</span> Exercise 2.14 — Transformed Processes</h2>
+<section id="part-a-y_t-theta_0-te_t" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="part-a-y_t-theta_0-te_t"><span class="header-section-number">7.1</span> Part (a): <span class="math inline">\(Y_t = \theta_0 + t\,e_t\)</span></h3>
+<p><strong>Mean.</strong> <span class="math inline">\(E(Y_t) = \theta_0 + t\, E(e_t) = \theta_0\)</span> (constant).</p>
+<p><strong>Autocovariance.</strong> <span class="math display">\[
+\operatorname{Cov}(Y_t, Y_s)
+  = \operatorname{Cov}(t\,e_t,\; s\,e_s)
+  = ts\,\operatorname{Cov}(e_t, e_s)
+  = \begin{cases} t^2 \sigma_e^2 &amp; t = s, \\ 0 &amp; t \neq s. \end{cases}
+\]</span></p>
+<p>The variance <span class="math inline">\(\gamma(t, t) = t^2\sigma_e^2\)</span> depends on <span class="math inline">\(t\)</span>, so <span class="math inline">\(\{Y_t\}\)</span> is <strong>not stationary</strong>.</p>
+</section>
+<section id="part-b-w_t-nabla-y_t-with-y_t-as-above" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="part-b-w_t-nabla-y_t-with-y_t-as-above"><span class="header-section-number">7.2</span> Part (b): <span class="math inline">\(W_t = \nabla Y_t\)</span> (with <span class="math inline">\(Y_t\)</span> as above)</h3>
+<p><span class="math display">\[
+W_t = t\,e_t - (t-1)\,e_{t-1}.
+\]</span></p>
+<p><strong>Mean.</strong> <span class="math inline">\(E(W_t) = 0\)</span> (constant).</p>
+<p><strong>Variance.</strong> <span class="math display">\[
+\operatorname{Var}(W_t)
+  = t^2\sigma_e^2 + (t-1)^2\sigma_e^2
+  = \bigl[t^2 + (t-1)^2\bigr]\sigma_e^2.
+\]</span></p>
+<p>This depends on <span class="math inline">\(t\)</span>, so <span class="math inline">\(\{W_t\}\)</span> is <strong>not stationary</strong>. Differencing does not restore stationarity here because the non-stationarity arises from a time-varying coefficient, not a deterministic polynomial trend.</p>
+</section>
+<section id="part-c-y_t-e_te_t-1-gaussian-white-noise" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="part-c-y_t-e_te_t-1-gaussian-white-noise"><span class="header-section-number">7.3</span> Part (c): <span class="math inline">\(Y_t = e_t\,e_{t-1}\)</span> (Gaussian white noise)</h3>
+<p><strong>Mean.</strong> By independence, <span class="math inline">\(E(Y_t) = E(e_t)\,E(e_{t-1}) = 0\)</span>.</p>
+<p><strong>Variance.</strong> <span class="math display">\[
+\operatorname{Var}(Y_t)
+  = E(e_t^2)\,E(e_{t-1}^2)
+  = \sigma_e^4.
+\]</span></p>
+<p><strong>Autocovariance (<span class="math inline">\(k \geq 1\)</span>).</strong> For <span class="math inline">\(k \geq 1\)</span>, the index sets <span class="math inline">\(\{t, t-1\}\)</span> and <span class="math inline">\(\{t-k, t-k-1\}\)</span> are disjoint, so all four variables are independent and <span class="math display">\[
+\operatorname{Cov}(Y_t, Y_{t-k})
+  = E(e_t\,e_{t-1}\,e_{t-k}\,e_{t-k-1}) = 0.
+\]</span></p>
+<p><strong>Conclusion.</strong> The mean is zero, the variance is <span class="math inline">\(\sigma_e^4\)</span> (both constant), and <span class="math inline">\(\gamma_k = 0\)</span> for all <span class="math inline">\(k \geq 1\)</span>, so <span class="math inline">\(\{Y_t\}\)</span> is <strong>stationary</strong>. <span class="math inline">\(\blacksquare\)</span></p>
+<hr>
+</section>
+</section>
+<section id="exercise-2.17-variance-of-the-sample-mean" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="exercise-2.17-variance-of-the-sample-mean"><span class="header-section-number">8</span> Exercise 2.17 — Variance of the Sample Mean</h2>
+<p><strong>Given.</strong> <span class="math inline">\(\{Y_t\}\)</span> stationary with autocovariance <span class="math inline">\(\gamma_k\)</span>. Let <span class="math inline">\(\bar{Y} = n^{-1}\sum_{t=1}^{n} Y_t\)</span>.</p>
+<p><strong>Derivation.</strong></p>
+<p><span class="math display">\[
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \operatorname{Cov}(Y_t, Y_s)
+  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \gamma_{|t-s|}.
+\]</span></p>
+<p>For each lag <span class="math inline">\(k \in \{0, 1, \ldots, n-1\}\)</span>, there are exactly <span class="math inline">\(n - k\)</span> pairs <span class="math inline">\((t, s)\)</span> satisfying <span class="math inline">\(|t - s| = k\)</span>. Exploiting <span class="math inline">\(\gamma_{-k} = \gamma_k\)</span>:</p>
+<p><span class="math display">\[
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n^2}\biggl[n\gamma_0 + 2\sum_{k=1}^{n-1}(n-k)\,\gamma_k\biggr]
+  = \frac{\gamma_0}{n} + \frac{2}{n}\sum_{k=1}^{n-1}\!\left(1 - \frac{k}{n}\right)\gamma_k.
+\]</span></p>
+<p>Combining positive and negative lags yields the symmetric form:</p>
+<p><span class="math display">\[
+\operatorname{Var}(\bar{Y})
+  = \frac{1}{n}\sum_{k=-(n-1)}^{n-1}\!\left(1 - \frac{|k|}{n}\right)\gamma_k.
+  \qquad\blacksquare
+\]</span></p>
+<hr>
+</section>
+<section id="exercise-2.23-sum-of-independent-stationary-processes" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="exercise-2.23-sum-of-independent-stationary-processes"><span class="header-section-number">9</span> Exercise 2.23 — Sum of Independent Stationary Processes</h2>
+<p><strong>Given.</strong> <span class="math inline">\(\{Z_t\}\)</span> and <span class="math inline">\(\{Y_t\}\)</span> are independent stationary processes with means <span class="math inline">\(\mu_Z\)</span>, <span class="math inline">\(\mu_Y\)</span> and autocovariances <span class="math inline">\(\gamma_k^Z\)</span>, <span class="math inline">\(\gamma_k^Y\)</span>. Define <span class="math inline">\(W_t = Z_t + Y_t\)</span>.</p>
+<p><strong>Mean.</strong> <span class="math display">\[
+E(W_t) = \mu_Z + \mu_Y = \text{constant}.
+\]</span></p>
+<p><strong>Autocovariance.</strong> <span class="math display">\[
+\operatorname{Cov}(W_t, W_{t-k})
+  = \operatorname{Cov}(Z_t, Z_{t-k})
+  + \underbrace{\operatorname{Cov}(Z_t, Y_{t-k})}_{= 0}
+  + \underbrace{\operatorname{Cov}(Y_t, Z_{t-k})}_{= 0}
+  + \operatorname{Cov}(Y_t, Y_{t-k})
+  = \gamma_k^Z + \gamma_k^Y.
+\]</span></p>
+<p>The cross-covariance terms vanish by independence. The resulting autocovariance depends only on <span class="math inline">\(k\)</span>, so <span class="math inline">\(\{W_t\}\)</span> is <strong>stationary</strong>. <span class="math inline">\(\blacksquare\)</span></p>
+<hr>
+</section>
+<section id="exercise-2.26-semivariogram-and-intrinsic-stationarity" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="exercise-2.26-semivariogram-and-intrinsic-stationarity"><span class="header-section-number">10</span> Exercise 2.26 — Semivariogram and Intrinsic Stationarity</h2>
+<p><strong>Definition.</strong> The <em>semivariogram</em> of a process <span class="math inline">\(\{Y_t\}\)</span> is <span class="math display">\[
+\Gamma(t, s) = \tfrac{1}{2}\,E\!\bigl[(Y_t - Y_s)^2\bigr].
+\]</span></p>
+<p>A process is called <strong>intrinsically stationary</strong> if <span class="math inline">\(\Gamma(t, s)\)</span> depends only on the time difference <span class="math inline">\(|t - s|\)</span>.</p>
+<section id="part-a-stationary-process" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="part-a-stationary-process"><span class="header-section-number">10.1</span> Part (a): Stationary process</h3>
+<p>For a covariance-stationary process with mean <span class="math inline">\(\mu\)</span> and autocovariance <span class="math inline">\(\gamma_k\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+2\,\Gamma(t, s)
+  &amp;= E\!\bigl[(Y_t - Y_s)^2\bigr] \\
+  &amp;= E(Y_t^2) - 2\,E(Y_t Y_s) + E(Y_s^2) \\
+  &amp;= (\gamma_0 + \mu^2) - 2(\gamma_{|t-s|} + \mu^2) + (\gamma_0 + \mu^2) \\
+  &amp;= 2\gamma_0 - 2\gamma_{|t-s|}.
+\end{aligned}
+\]</span></p>
+<p>Therefore <span class="math display">\[
+\Gamma(t, s) = \gamma_0 - \gamma_{|t-s|}. \qquad\blacksquare
+\]</span></p>
+</section>
+<section id="part-b-random-walk" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="part-b-random-walk"><span class="header-section-number">10.2</span> Part (b): Random walk</h3>
+<p>Let <span class="math inline">\(Y_t = \sum_{j=1}^{t} e_j\)</span> with <span class="math inline">\(Y_0 = 0\)</span>. For <span class="math inline">\(t &gt; s\)</span>, <span class="math display">\[
+Y_t - Y_s = \sum_{j=s+1}^{t} e_j,
+\]</span> which is a sum of <span class="math inline">\(t - s\)</span> independent terms. Hence <span class="math display">\[
+\Gamma(t, s)
+  = \tfrac{1}{2}\,\operatorname{Var}\!\left(\sum_{j=s+1}^{t} e_j\right)
+  = \tfrac{1}{2}(t - s)\sigma_e^2.
+\]</span></p>
+<p>This depends only on <span class="math inline">\(|t - s|\)</span>, so the random walk is <strong>intrinsically stationary</strong>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The random walk is <em>not</em> covariance-stationary because <span class="math inline">\(\operatorname{Var}(Y_t) = t\sigma_e^2\)</span> grows without bound. Intrinsic stationarity is a strictly weaker condition.</p>
+</div>
+</div>
+<p><span class="math inline">\(\blacksquare\)</span></p>
+<hr>
+</section>
+</section>
+<section id="exercise-2.27-finite-moving-average-process" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="exercise-2.27-finite-moving-average-process"><span class="header-section-number">11</span> Exercise 2.27 — Finite Moving-Average Process</h2>
+<p><strong>Given.</strong> For a fixed positive integer <span class="math inline">\(r\)</span> and constant <span class="math inline">\(\phi\)</span>, define <span class="math display">\[
+Y_t = \sum_{j=0}^{r} \phi^j\, e_{t-j}
+    = e_t + \phi e_{t-1} + \phi^2 e_{t-2} + \cdots + \phi^r e_{t-r}.
+\]</span></p>
+<section id="part-a-stationarity-for-any-phi" class="level3" data-number="11.1">
+<h3 data-number="11.1" class="anchored" data-anchor-id="part-a-stationarity-for-any-phi"><span class="header-section-number">11.1</span> Part (a): Stationarity for any <span class="math inline">\(\phi\)</span></h3>
+<p><strong>Mean.</strong> <span class="math display">\[
+E(Y_t) = \sum_{j=0}^{r} \phi^j\, E(e_{t-j}) = 0.
+\]</span></p>
+<p><strong>Autocovariance.</strong> By bilinearity and white-noise uncorrelatedness: <span class="math display">\[
+\gamma_k
+  = \operatorname{Cov}(Y_t, Y_{t-k})
+  = \sum_{i=0}^{r}\sum_{j=0}^{r} \phi^{i+j}\, \operatorname{Cov}(e_{t-i},\, e_{t-k-j}).
+\]</span></p>
+<p>The term <span class="math inline">\(\operatorname{Cov}(e_{t-i}, e_{t-k-j}) = \sigma_e^2\)</span> only when <span class="math inline">\(i = k + j\)</span>. Substituting:</p>
+<p><span class="math display">\[
+\gamma_k = \sigma_e^2 \sum_{j=0}^{r-k} \phi^{k+2j}
+         = \sigma_e^2\,\phi^k \sum_{j=0}^{r-k} \phi^{2j},
+\qquad 0 \leq k \leq r,
+\]</span></p>
+<p>and <span class="math inline">\(\gamma_k = 0\)</span> for <span class="math inline">\(|k| &gt; r\)</span>. In both cases <span class="math inline">\(\gamma_k\)</span> depends only on <span class="math inline">\(k\)</span>, not on <span class="math inline">\(t\)</span>. Hence <span class="math inline">\(\{Y_t\}\)</span> is <strong>stationary for any <span class="math inline">\(\phi\)</span></strong>. <span class="math inline">\(\blacksquare\)</span></p>
+</section>
+<section id="part-b-autocorrelation-function" class="level3" data-number="11.2">
+<h3 data-number="11.2" class="anchored" data-anchor-id="part-b-autocorrelation-function"><span class="header-section-number">11.2</span> Part (b): Autocorrelation function</h3>
+<p>Using the geometric series formula (<span class="math inline">\(\phi \neq \pm 1\)</span>):</p>
+<p><span class="math display">\[
+\gamma_0 = \sigma_e^2 \sum_{j=0}^{r} \phi^{2j}
+         = \sigma_e^2\,\frac{1 - \phi^{2(r+1)}}{1 - \phi^2}.
+\]</span></p>
+<p><span class="math display">\[
+\gamma_k = \sigma_e^2\,\phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^2},
+\qquad 0 \leq k \leq r.
+\]</span></p>
+<p>Therefore, the ACF is</p>
+<p><span class="math display">\[
+\rho_k = \frac{\gamma_k}{\gamma_0}
+       = \phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^{2(r+1)}},
+\qquad 0 \leq k \leq r,
+\]</span></p>
+<p>and <span class="math inline">\(\rho_k = 0\)</span> for <span class="math inline">\(|k| &gt; r\)</span>. The ACF has a <strong>finite cutoff</strong> at lag <span class="math inline">\(r\)</span>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fl">0.7</span>; r <span class="ot">&lt;-</span> <span class="dv">4</span>; n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>e   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n <span class="sc">+</span> r)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Y   <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">"+"</span>, <span class="fu">lapply</span>(<span class="dv">0</span><span class="sc">:</span>r, \(j) phi<span class="sc">^</span>j <span class="sc">*</span> e[(r <span class="sc">-</span> j <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(n <span class="sc">+</span> r <span class="sc">-</span> j)]))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Theoretical ACF</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>rho_theory <span class="ot">&lt;-</span> <span class="cf">function</span>(k, phi, r) {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">abs</span>(k) <span class="sc">&gt;</span> r) <span class="fu">return</span>(<span class="dv">0</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  phi<span class="sc">^</span>k <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> phi<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>(r <span class="sc">-</span> k <span class="sc">+</span> <span class="dv">1</span>))) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> phi<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>(r <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>lags <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>rho_th <span class="ot">&lt;-</span> <span class="fu">sapply</span>(lags, rho_theory, <span class="at">phi =</span> phi, <span class="at">r =</span> r)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>acf_obj <span class="ot">&lt;-</span> <span class="fu">acf</span>(Y, <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">plot =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acf_obj, <span class="at">main =</span> <span class="st">""</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.2</span>, <span class="fl">1.1</span>),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Lag"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(rho[k]))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(lags, rho_th, <span class="at">col =</span> <span class="st">"firebrick"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Sample ACF"</span>, <span class="st">"Theoretical"</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"firebrick"</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">19</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">cex =</span> <span class="fl">0.85</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="at">main =</span> <span class="fu">bquote</span>(phi <span class="sc">==</span> .(phi) <span class="sc">~</span> <span class="st">","</span> <span class="sc">~</span> r <span class="sc">==</span> .(r)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tp02_files/figure-html/ex2-27-acf-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Theoretical vs.&nbsp;sample ACF for the finite MA process (r = 4, φ = 0.7, n = 1000)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="summary" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="summary"><span class="header-section-number">12</span> Summary</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 18%">
+<col style="width: 31%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Exercise</th>
+<th>Process</th>
+<th style="text-align: center;">Stationary?</th>
+<th>Key result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">2.4</td>
+<td><span class="math inline">\(e_t + \theta e_{t-1}\)</span></td>
+<td style="text-align: center;">Yes</td>
+<td><span class="math inline">\(\rho_1 = \theta/(1+\theta^2)\)</span>; <span class="math inline">\(\theta=3\)</span> and <span class="math inline">\(\theta=1/3\)</span> are indistinguishable</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.5</td>
+<td><span class="math inline">\(5 + 2t + X_t\)</span></td>
+<td style="text-align: center;">No</td>
+<td>Mean <span class="math inline">\(\mu_t = 5+2t\)</span> depends on <span class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2.8</td>
+<td><span class="math inline">\(\sum c_j Y_{t-j+1}\)</span></td>
+<td style="text-align: center;">Yes</td>
+<td>Any finite linear filter of a stationary process is stationary</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.9</td>
+<td><span class="math inline">\(\beta_0 + \beta_1 t + X_t\)</span></td>
+<td style="text-align: center;">No / Yes after <span class="math inline">\(\nabla\)</span></td>
+<td><span class="math inline">\(\nabla^m Y_t\)</span> stationary <span class="math inline">\(\iff m \geq d\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2.12</td>
+<td><span class="math inline">\(e_t - e_{t-12}\)</span></td>
+<td style="text-align: center;">Yes</td>
+<td><span class="math inline">\(\rho_{12} = -1/2\)</span>; all other lags zero</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.14a</td>
+<td><span class="math inline">\(\theta_0 + t e_t\)</span></td>
+<td style="text-align: center;">No</td>
+<td><span class="math inline">\(\operatorname{Var}(Y_t) = t^2\sigma_e^2\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2.14b</td>
+<td><span class="math inline">\(\nabla(\theta_0 + t e_t)\)</span></td>
+<td style="text-align: center;">No</td>
+<td><span class="math inline">\(\operatorname{Var}(W_t)\)</span> still depends on <span class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.14c</td>
+<td><span class="math inline">\(e_t e_{t-1}\)</span></td>
+<td style="text-align: center;">Yes</td>
+<td><span class="math inline">\(\gamma_k = 0\)</span> for <span class="math inline">\(k \geq 1\)</span>; white-noise-like ACF</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2.17</td>
+<td><span class="math inline">\(\bar{Y}\)</span></td>
+<td style="text-align: center;">—</td>
+<td><span class="math inline">\(\operatorname{Var}(\bar{Y}) = n^{-1}\sum_{k}(1-|k|/n)\gamma_k\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.23</td>
+<td><span class="math inline">\(Z_t + Y_t\)</span> (independent)</td>
+<td style="text-align: center;">Yes</td>
+<td><span class="math inline">\(\gamma_k^W = \gamma_k^Z + \gamma_k^Y\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2.26</td>
+<td>Semivariogram</td>
+<td style="text-align: center;">—</td>
+<td><span class="math inline">\(\Gamma(t,s) = \gamma_0 - \gamma_{|t-s|}\)</span>; random walk intrinsically stationary</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2.27</td>
+<td><span class="math inline">\(\sum_{j=0}^r \phi^j e_{t-j}\)</span></td>
+<td style="text-align: center;">Yes</td>
+<td>ACF cuts off at lag <span class="math inline">\(r\)</span>; valid for any <span class="math inline">\(\phi\)</span></td>
+</tr>
+</tbody>
+</table>
 
 
 <!-- -->
@@ -485,11 +943,30 @@ window.Quarto = {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -503,8 +980,70 @@ window.Quarto = {
             if (link.getAttribute("rel") === null) {
               link.setAttribute("rel", "noopener");
             }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -518,6 +1057,7 @@ window.Quarto = {
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -680,44 +1220,54 @@ window.Quarto = {
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -815,63 +1365,580 @@ window.Quarto = {
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "TP 02 · Fundamental mathematical concepts"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Stationarity, covariance, and differencing"</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "PHAL Menghak"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objectives</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>State the assumptions behind covariance stationarity.</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Derive mean, autocovariance, and autocorrelation functions.</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Explain what differencing changes in a trend or seasonal process.</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Check an analytic argument with a short R simulation when useful.</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise tracker</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Exercise <span class="pp">|</span> Main topic <span class="pp">|</span> Progress <span class="pp">|</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.4 <span class="pp">|</span> MA(1) and equivalent autocorrelation <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.5 <span class="pp">|</span> Linear trend plus stationary noise <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.8 <span class="pp">|</span> Finite linear filter <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.9 <span class="pp">|</span> Differencing a polynomial trend <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.12 <span class="pp">|</span> Seasonal difference of white noise <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.14 <span class="pp">|</span> Mean and covariance of transformed processes <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.17 <span class="pp">|</span> Variance of a sample mean <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.23 <span class="pp">|</span> Sum of independent stationary processes <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.26 <span class="pp">|</span> Semivariogram and intrinsic stationarity <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.27 <span class="pp">|</span> Finite moving-average process <span class="pp">|</span> To do <span class="pp">|</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>The tracker follows the second course handout. Consult it for the full wording and all subparts.</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">## Derivation template</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>Copy this pattern under each exercise:</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Assumptions:** Define the process and the properties of the innovations.</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Mean:** Calculate $E(Y_t)$ and check whether it depends on $t$.</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Autocovariance:** Calculate $\operatorname{Cov}(Y_t,Y_{t-k})$ and check whether it depends only on $k$.</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Conclusion:** State the stationarity result and justify it.</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**R check (optional):** Simulate with a fixed seed; use it as a check, not as proof.</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.4 · MA(1) process</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>For $Y_t=e_t+\theta e_{t-1}$, work through both specified values of $\theta$. Show the variance and the nonzero autocovariances before calculating $\rho_k$. Then address why the sample autocorrelation may or may not distinguish the two processes.</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>**Derivation:** To complete.</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.5 · Trend plus stationary component</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>For $Y_t=5+2t+X_t$, find the mean function and autocovariance, then give a stationarity conclusion.</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>**Derivation:** To complete.</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="fu">## Remaining exercises</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>Add a section for each row in the tracker as you work. Keep algebra legible with Quarto math notation and put any simulation immediately after the result it checks.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "TD/TP 02 — Fundamental Mathematical Concepts"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Stationarity, Autocovariance, and Differencing"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "PHAL Menghak"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="an">date-format:</span><span class="co"> "D MMMM YYYY"</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contents"</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number-depth: 3</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-align: center</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">    df-print: kable</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="an">knitr:</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">  opts_chunk:</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">    comment: "#&gt;"</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objectives {.unnumbered}</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>State the conditions for covariance stationarity.</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Derive the mean, autocovariance, and autocorrelation functions for various processes.</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Show how differencing eliminates deterministic polynomial and seasonal trends.</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Verify analytical results with short R simulations where instructive.</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="fu">## Notation and Assumptions</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>Throughout this document, $<span class="sc">\{</span>e_t<span class="sc">\}</span>$ denotes a **zero-mean white noise** process</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>satisfying</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>E(e_t) = 0, \qquad</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(e_t) = \sigma_e^2, \qquad</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(e_t, e_s) = 0 \quad (t \neq s).</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>A process $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **covariance stationary** if</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>$E(Y_t) = \mu$ for all $t$ (constant mean), and</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>$\operatorname{Cov}(Y_t, Y_{t-k}) = \gamma_k$ for all $t$ (autocovariance depends only on lag $k$).</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>The **autocorrelation function** (ACF) is defined as</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>\rho_k = \frac{\gamma_k}{\gamma_0}, \qquad k = 0, \pm 1, \pm 2, \ldots</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.4 — MA(1) Process</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>**Given.** Let $<span class="sc">\{</span>e_t<span class="sc">\}</span>$ be zero-mean white noise and define</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>Y_t = e_t + \theta e_{t-1}, \qquad \theta \in \bigl<span class="sc">\{</span>3,\; \tfrac{1}{3}\bigr<span class="sc">\}</span>.</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): Autocorrelation function</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>**Mean.**</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>E(Y_t) = E(e_t) + \theta\, E(e_{t-1}) = 0.</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>**Variance.**</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>\gamma_0 = \operatorname{Var}(Y_t)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>         = \operatorname{Var}(e_t) + \theta^2 \operatorname{Var}(e_{t-1})</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>         = \sigma_e^2(1 + \theta^2).</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>**Lag-1 autocovariance.**</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>\gamma_1 = \operatorname{Cov}(Y_t, Y_{t-1})</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>         = E\bigl<span class="co">[</span><span class="ot">(e_t + \theta e_{t-1})(e_{t-1} + \theta e_{t-2})\bigr</span><span class="co">]</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>         = \theta\, E(e_{t-1}^2)</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>         = \theta\sigma_e^2.</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>**Lag $|k| \geq 2$.** The sets $<span class="sc">\{</span>t, t-1<span class="sc">\}</span>$ and $<span class="sc">\{</span>t-k, t-k-1<span class="sc">\}</span>$ are disjoint, so</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>$\gamma_k = 0$.</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>**ACF.**</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>\rho_k = \begin{cases}</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>  1 &amp; k = 0, <span class="sc">\\</span><span class="co">[</span><span class="ot">4pt</span><span class="co">]</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>  \dfrac{\theta}{1 + \theta^2} &amp; |k| = 1, <span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>  0 &amp; |k| \geq 2.</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>\end{cases}</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>Evaluating at the two specified values:</span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\theta$ <span class="pp">|</span> $\rho_1 = \theta/(1+\theta^2)$ <span class="pp">|</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a><span class="pp">|:---:|:---:|</span></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $3$ <span class="pp">|</span> $3/10 = 0.3$ <span class="pp">|</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $1/3$ <span class="pp">|</span> $(1/3)/(1 + 1/9) = (1/3)/(10/9) = 3/10 = 0.3$ <span class="pp">|</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>Both processes share **identical** ACFs.</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): Identification from the sample ACF</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>Because $\theta = 3$ and $\theta = 1/3$ yield the same ACF, no estimator</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>$\hat{\rho}_k$ — however precise — can distinguish between them.</span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>This is a consequence of **MA(1) invertibility aliasing**: for any solution</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>$\theta$, the reciprocal $1/\theta$ produces an equivalent ACF.</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>Uniqueness is restored by imposing the **invertibility condition** $|\theta| &lt; 1$,</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>which selects $\theta = 1/3$.</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ex2-4-check</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Sample ACFs for MA(1) with θ = 3 and θ = 1/3 (n = 500)"</span></span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 3.5</span></span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>sim_ma1 <span class="ot">&lt;-</span> <span class="cf">function</span>(theta, <span class="at">n =</span> <span class="dv">500</span>) {</span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tail</span>(e[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">+</span> theta <span class="sc">*</span> e[<span class="sc">-</span>(n <span class="sc">+</span> <span class="dv">1</span>)], n)</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>y3   <span class="ot">&lt;-</span> <span class="fu">sim_ma1</span>(<span class="dv">3</span>)</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>y1_3 <span class="ot">&lt;-</span> <span class="fu">sim_ma1</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="dv">3</span>)</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(y3,   <span class="at">main =</span> <span class="fu">expression</span>(theta <span class="sc">==</span> <span class="dv">3</span>),   <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(y1_3, <span class="at">main =</span> <span class="fu">expression</span>(theta <span class="sc">==</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>), <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">1</span>))</span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.5 — Linear Trend Plus Stationary Component</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>**Given.** $Y_t = 5 + 2t + X_t$, where $<span class="sc">\{</span>X_t<span class="sc">\}</span>$ is zero-mean stationary</span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>with autocovariance $\gamma_k^X$.</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): Mean function</span></span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>\mu_t = E(Y_t) = 5 + 2t + E(X_t) = 5 + 2t.</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a>The mean is a linear function of $t$.</span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): Autocovariance function</span></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>Constants are absorbed by the expectation operator, so</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(Y_t, Y_{t-k})</span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a>  = \operatorname{Cov}(X_t, X_{t-k})</span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>  = \gamma_k^X.</span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>The autocovariance depends only on the lag $k$.</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (c): Stationarity</span></span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>$<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **not stationary**. Although the autocovariance satisfies the</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>second condition, the mean $\mu_t = 5 + 2t$ varies with $t$, violating the</span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>first condition. Both conditions must hold simultaneously.</span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.8 — Finite Linear Filter</span></span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>**Given.** $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is stationary with mean $\mu$ and autocovariance $\gamma_k$.</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a>Define the linear filter</span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>W_t = \sum_{j=1}^{n} c_j\, Y_{t-j+1},</span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a>for fixed constants $c_1, \ldots, c_n$.</span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>**Claim.** $<span class="sc">\{</span>W_t<span class="sc">\}</span>$ is covariance stationary.</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a>**Proof.**</span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>*Mean.*</span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a>E(W_t) = \sum_{j=1}^{n} c_j\, E(Y_{t-j+1}) = \mu \sum_{j=1}^{n} c_j,</span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a>which is constant.</span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>*Autocovariance.* By bilinearity of covariance,</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(W_t, W_{t-k})</span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\,</span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a>    \operatorname{Cov}(Y_{t-i+1},\, Y_{t-k-j+1}).</span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>Since $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is stationary, $\operatorname{Cov}(Y_{t-i+1}, Y_{t-k-j+1}) = \gamma_{k+j-i}$,</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a>which depends only on the lag. Therefore</span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(W_t, W_{t-k})</span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a>  = \sum_{i=1}^{n}\sum_{j=1}^{n} c_i c_j\, \gamma_{k+j-i},</span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>a function of $k$ alone. Hence $<span class="sc">\{</span>W_t<span class="sc">\}</span>$ is covariance stationary. $\blacksquare$</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.9 — Differencing a Polynomial Trend</span></span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>**Given.** $Y_t = \beta_0 + \beta_1 t + X_t$, where $<span class="sc">\{</span>X_t<span class="sc">\}</span>$ is zero-mean</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a>stationary with autocovariance $\gamma_k^X$.</span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): First difference $W_t = \nabla Y_t$</span></span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a>$<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **not stationary** because $E(Y_t) = \beta_0 + \beta_1 t$</span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a>depends on $t$.</span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a>Apply the first-difference operator $\nabla$:</span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>W_t = Y_t - Y_{t-1}</span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>    = \bigl(\beta_0 + \beta_1 t + X_t\bigr) - \bigl(\beta_0 + \beta_1(t-1) + X_{t-1}\bigr)</span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a>    = \beta_1 + (X_t - X_{t-1}).</span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-239"><a href="#cb3-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-240"><a href="#cb3-240" aria-hidden="true" tabindex="-1"></a>*Mean.* $E(W_t) = \beta_1$ (constant).</span>
+<span id="cb3-241"><a href="#cb3-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-242"><a href="#cb3-242" aria-hidden="true" tabindex="-1"></a>*Autocovariance.*</span>
+<span id="cb3-243"><a href="#cb3-243" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-244"><a href="#cb3-244" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(W_t, W_{t-k})</span>
+<span id="cb3-245"><a href="#cb3-245" aria-hidden="true" tabindex="-1"></a>  = \operatorname{Cov}(X_t - X_{t-1},\; X_{t-k} - X_{t-k-1})</span>
+<span id="cb3-246"><a href="#cb3-246" aria-hidden="true" tabindex="-1"></a>  = 2\gamma_k^X - \gamma_{k-1}^X - \gamma_{k+1}^X,</span>
+<span id="cb3-247"><a href="#cb3-247" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-248"><a href="#cb3-248" aria-hidden="true" tabindex="-1"></a>which depends only on $k$. Hence $<span class="sc">\{</span>W_t<span class="sc">\}</span>$ is **stationary**. $\blacksquare$</span>
+<span id="cb3-249"><a href="#cb3-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-250"><a href="#cb3-250" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): General polynomial trend of degree $d$</span></span>
+<span id="cb3-251"><a href="#cb3-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-252"><a href="#cb3-252" aria-hidden="true" tabindex="-1"></a>Let $\mu_t$ be a polynomial in $t$ of degree $d$. The operator $\nabla$ reduces</span>
+<span id="cb3-253"><a href="#cb3-253" aria-hidden="true" tabindex="-1"></a>the degree by one: $\nabla \mu_t$ has degree $d - 1$. By induction,</span>
+<span id="cb3-254"><a href="#cb3-254" aria-hidden="true" tabindex="-1"></a>$\nabla^m \mu_t = 0$ for $m \geq d$ (or equals a nonzero constant when $m = d$).</span>
+<span id="cb3-255"><a href="#cb3-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-256"><a href="#cb3-256" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>If $m \geq d$: the polynomial part vanishes after $m$ differences and $\nabla^m X_t$</span>
+<span id="cb3-257"><a href="#cb3-257" aria-hidden="true" tabindex="-1"></a>  remains stationary (by Exercise 2.8), so $\nabla^m Y_t$ is **stationary**.</span>
+<span id="cb3-258"><a href="#cb3-258" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>If $0 \leq m &lt; d$: $\nabla^m \mu_t$ is still a nonconstant polynomial in $t$,</span>
+<span id="cb3-259"><a href="#cb3-259" aria-hidden="true" tabindex="-1"></a>  so $E(\nabla^m Y_t)$ depends on $t$ and $\nabla^m Y_t$ is **not stationary**.</span>
+<span id="cb3-260"><a href="#cb3-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-261"><a href="#cb3-261" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-262"><a href="#cb3-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-263"><a href="#cb3-263" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.12 — Seasonal Difference of White Noise</span></span>
+<span id="cb3-264"><a href="#cb3-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-265"><a href="#cb3-265" aria-hidden="true" tabindex="-1"></a>**Given.** $Y_t = e_t - e_{t-12}$.</span>
+<span id="cb3-266"><a href="#cb3-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-267"><a href="#cb3-267" aria-hidden="true" tabindex="-1"></a>**Mean.**</span>
+<span id="cb3-268"><a href="#cb3-268" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-269"><a href="#cb3-269" aria-hidden="true" tabindex="-1"></a>E(Y_t) = E(e_t) - E(e_{t-12}) = 0.</span>
+<span id="cb3-270"><a href="#cb3-270" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-271"><a href="#cb3-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-272"><a href="#cb3-272" aria-hidden="true" tabindex="-1"></a>**Autocovariance.** Expanding $\operatorname{Cov}(e_t - e_{t-12},\; e_{t-k} - e_{t-k-12})$</span>
+<span id="cb3-273"><a href="#cb3-273" aria-hidden="true" tabindex="-1"></a>and applying white-noise uncorrelatedness:</span>
+<span id="cb3-274"><a href="#cb3-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-275"><a href="#cb3-275" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-276"><a href="#cb3-276" aria-hidden="true" tabindex="-1"></a>\gamma_k = \begin{cases}</span>
+<span id="cb3-277"><a href="#cb3-277" aria-hidden="true" tabindex="-1"></a>  2\sigma_e^2  &amp; k = 0,       <span class="sc">\\</span></span>
+<span id="cb3-278"><a href="#cb3-278" aria-hidden="true" tabindex="-1"></a>  -\sigma_e^2  &amp; |k| = 12,    <span class="sc">\\</span></span>
+<span id="cb3-279"><a href="#cb3-279" aria-hidden="true" tabindex="-1"></a>  0            &amp; \text{otherwise.}</span>
+<span id="cb3-280"><a href="#cb3-280" aria-hidden="true" tabindex="-1"></a>\end{cases}</span>
+<span id="cb3-281"><a href="#cb3-281" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-282"><a href="#cb3-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-283"><a href="#cb3-283" aria-hidden="true" tabindex="-1"></a>**ACF.**</span>
+<span id="cb3-284"><a href="#cb3-284" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-285"><a href="#cb3-285" aria-hidden="true" tabindex="-1"></a>\rho_k = \begin{cases}</span>
+<span id="cb3-286"><a href="#cb3-286" aria-hidden="true" tabindex="-1"></a>  1            &amp; k = 0,       <span class="sc">\\</span></span>
+<span id="cb3-287"><a href="#cb3-287" aria-hidden="true" tabindex="-1"></a>  -\tfrac{1}{2} &amp; |k| = 12,  <span class="sc">\\</span></span>
+<span id="cb3-288"><a href="#cb3-288" aria-hidden="true" tabindex="-1"></a>  0            &amp; \text{otherwise.}</span>
+<span id="cb3-289"><a href="#cb3-289" aria-hidden="true" tabindex="-1"></a>\end{cases}</span>
+<span id="cb3-290"><a href="#cb3-290" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-291"><a href="#cb3-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-292"><a href="#cb3-292" aria-hidden="true" tabindex="-1"></a>**Conclusion.** The mean is constant and $\gamma_k$ depends only on $k$,</span>
+<span id="cb3-293"><a href="#cb3-293" aria-hidden="true" tabindex="-1"></a>so $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **stationary**. The ACF is nonzero only at lag 12. $\blacksquare$</span>
+<span id="cb3-294"><a href="#cb3-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-295"><a href="#cb3-295" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-296"><a href="#cb3-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-297"><a href="#cb3-297" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.14 — Transformed Processes</span></span>
+<span id="cb3-298"><a href="#cb3-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-299"><a href="#cb3-299" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): $Y_t = \theta_0 + t\,e_t$</span></span>
+<span id="cb3-300"><a href="#cb3-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-301"><a href="#cb3-301" aria-hidden="true" tabindex="-1"></a>**Mean.** $E(Y_t) = \theta_0 + t\, E(e_t) = \theta_0$ (constant).</span>
+<span id="cb3-302"><a href="#cb3-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-303"><a href="#cb3-303" aria-hidden="true" tabindex="-1"></a>**Autocovariance.**</span>
+<span id="cb3-304"><a href="#cb3-304" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-305"><a href="#cb3-305" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(Y_t, Y_s)</span>
+<span id="cb3-306"><a href="#cb3-306" aria-hidden="true" tabindex="-1"></a>  = \operatorname{Cov}(t\,e_t,\; s\,e_s)</span>
+<span id="cb3-307"><a href="#cb3-307" aria-hidden="true" tabindex="-1"></a>  = ts\,\operatorname{Cov}(e_t, e_s)</span>
+<span id="cb3-308"><a href="#cb3-308" aria-hidden="true" tabindex="-1"></a>  = \begin{cases} t^2 \sigma_e^2 &amp; t = s, <span class="sc">\\</span> 0 &amp; t \neq s. \end{cases}</span>
+<span id="cb3-309"><a href="#cb3-309" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-310"><a href="#cb3-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-311"><a href="#cb3-311" aria-hidden="true" tabindex="-1"></a>The variance $\gamma(t, t) = t^2\sigma_e^2$ depends on $t$,</span>
+<span id="cb3-312"><a href="#cb3-312" aria-hidden="true" tabindex="-1"></a>so $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **not stationary**.</span>
+<span id="cb3-313"><a href="#cb3-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-314"><a href="#cb3-314" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): $W_t = \nabla Y_t$ (with $Y_t$ as above)</span></span>
+<span id="cb3-315"><a href="#cb3-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-316"><a href="#cb3-316" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-317"><a href="#cb3-317" aria-hidden="true" tabindex="-1"></a>W_t = t\,e_t - (t-1)\,e_{t-1}.</span>
+<span id="cb3-318"><a href="#cb3-318" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-319"><a href="#cb3-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-320"><a href="#cb3-320" aria-hidden="true" tabindex="-1"></a>**Mean.** $E(W_t) = 0$ (constant).</span>
+<span id="cb3-321"><a href="#cb3-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-322"><a href="#cb3-322" aria-hidden="true" tabindex="-1"></a>**Variance.**</span>
+<span id="cb3-323"><a href="#cb3-323" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-324"><a href="#cb3-324" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(W_t)</span>
+<span id="cb3-325"><a href="#cb3-325" aria-hidden="true" tabindex="-1"></a>  = t^2\sigma_e^2 + (t-1)^2\sigma_e^2</span>
+<span id="cb3-326"><a href="#cb3-326" aria-hidden="true" tabindex="-1"></a>  = \bigl<span class="co">[</span><span class="ot">t^2 + (t-1)^2\bigr</span><span class="co">]</span>\sigma_e^2.</span>
+<span id="cb3-327"><a href="#cb3-327" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-328"><a href="#cb3-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-329"><a href="#cb3-329" aria-hidden="true" tabindex="-1"></a>This depends on $t$, so $<span class="sc">\{</span>W_t<span class="sc">\}</span>$ is **not stationary**. Differencing does not</span>
+<span id="cb3-330"><a href="#cb3-330" aria-hidden="true" tabindex="-1"></a>restore stationarity here because the non-stationarity arises from a</span>
+<span id="cb3-331"><a href="#cb3-331" aria-hidden="true" tabindex="-1"></a>time-varying coefficient, not a deterministic polynomial trend.</span>
+<span id="cb3-332"><a href="#cb3-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-333"><a href="#cb3-333" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (c): $Y_t = e_t\,e_{t-1}$ (Gaussian white noise)</span></span>
+<span id="cb3-334"><a href="#cb3-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-335"><a href="#cb3-335" aria-hidden="true" tabindex="-1"></a>**Mean.** By independence, $E(Y_t) = E(e_t)\,E(e_{t-1}) = 0$.</span>
+<span id="cb3-336"><a href="#cb3-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-337"><a href="#cb3-337" aria-hidden="true" tabindex="-1"></a>**Variance.**</span>
+<span id="cb3-338"><a href="#cb3-338" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-339"><a href="#cb3-339" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(Y_t)</span>
+<span id="cb3-340"><a href="#cb3-340" aria-hidden="true" tabindex="-1"></a>  = E(e_t^2)\,E(e_{t-1}^2)</span>
+<span id="cb3-341"><a href="#cb3-341" aria-hidden="true" tabindex="-1"></a>  = \sigma_e^4.</span>
+<span id="cb3-342"><a href="#cb3-342" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-343"><a href="#cb3-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-344"><a href="#cb3-344" aria-hidden="true" tabindex="-1"></a>**Autocovariance ($k \geq 1$).** For $k \geq 1$, the index sets</span>
+<span id="cb3-345"><a href="#cb3-345" aria-hidden="true" tabindex="-1"></a>$<span class="sc">\{</span>t, t-1<span class="sc">\}</span>$ and $<span class="sc">\{</span>t-k, t-k-1<span class="sc">\}</span>$ are disjoint, so all four</span>
+<span id="cb3-346"><a href="#cb3-346" aria-hidden="true" tabindex="-1"></a>variables are independent and</span>
+<span id="cb3-347"><a href="#cb3-347" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-348"><a href="#cb3-348" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(Y_t, Y_{t-k})</span>
+<span id="cb3-349"><a href="#cb3-349" aria-hidden="true" tabindex="-1"></a>  = E(e_t\,e_{t-1}\,e_{t-k}\,e_{t-k-1}) = 0.</span>
+<span id="cb3-350"><a href="#cb3-350" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-351"><a href="#cb3-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-352"><a href="#cb3-352" aria-hidden="true" tabindex="-1"></a>**Conclusion.** The mean is zero, the variance is $\sigma_e^4$ (both constant),</span>
+<span id="cb3-353"><a href="#cb3-353" aria-hidden="true" tabindex="-1"></a>and $\gamma_k = 0$ for all $k \geq 1$, so $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **stationary**. $\blacksquare$</span>
+<span id="cb3-354"><a href="#cb3-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-355"><a href="#cb3-355" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-356"><a href="#cb3-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-357"><a href="#cb3-357" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.17 — Variance of the Sample Mean</span></span>
+<span id="cb3-358"><a href="#cb3-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-359"><a href="#cb3-359" aria-hidden="true" tabindex="-1"></a>**Given.** $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ stationary with autocovariance $\gamma_k$.</span>
+<span id="cb3-360"><a href="#cb3-360" aria-hidden="true" tabindex="-1"></a>Let $\bar{Y} = n^{-1}\sum_{t=1}^{n} Y_t$.</span>
+<span id="cb3-361"><a href="#cb3-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-362"><a href="#cb3-362" aria-hidden="true" tabindex="-1"></a>**Derivation.**</span>
+<span id="cb3-363"><a href="#cb3-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-364"><a href="#cb3-364" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-365"><a href="#cb3-365" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(\bar{Y})</span>
+<span id="cb3-366"><a href="#cb3-366" aria-hidden="true" tabindex="-1"></a>  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \operatorname{Cov}(Y_t, Y_s)</span>
+<span id="cb3-367"><a href="#cb3-367" aria-hidden="true" tabindex="-1"></a>  = \frac{1}{n^2} \sum_{t=1}^{n}\sum_{s=1}^{n} \gamma_{|t-s|}.</span>
+<span id="cb3-368"><a href="#cb3-368" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-369"><a href="#cb3-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-370"><a href="#cb3-370" aria-hidden="true" tabindex="-1"></a>For each lag $k \in <span class="sc">\{</span>0, 1, \ldots, n-1<span class="sc">\}</span>$, there are exactly $n - k$ pairs</span>
+<span id="cb3-371"><a href="#cb3-371" aria-hidden="true" tabindex="-1"></a>$(t, s)$ satisfying $|t - s| = k$. Exploiting $\gamma_{-k} = \gamma_k$:</span>
+<span id="cb3-372"><a href="#cb3-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-373"><a href="#cb3-373" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-374"><a href="#cb3-374" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(\bar{Y})</span>
+<span id="cb3-375"><a href="#cb3-375" aria-hidden="true" tabindex="-1"></a>  = \frac{1}{n^2}\biggl<span class="co">[</span><span class="ot">n\gamma_0 + 2\sum_{k=1}^{n-1}(n-k)\,\gamma_k\biggr</span><span class="co">]</span></span>
+<span id="cb3-376"><a href="#cb3-376" aria-hidden="true" tabindex="-1"></a>  = \frac{\gamma_0}{n} + \frac{2}{n}\sum_{k=1}^{n-1}<span class="sc">\!</span>\left(1 - \frac{k}{n}\right)\gamma_k.</span>
+<span id="cb3-377"><a href="#cb3-377" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-378"><a href="#cb3-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-379"><a href="#cb3-379" aria-hidden="true" tabindex="-1"></a>Combining positive and negative lags yields the symmetric form:</span>
+<span id="cb3-380"><a href="#cb3-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-381"><a href="#cb3-381" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-382"><a href="#cb3-382" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(\bar{Y})</span>
+<span id="cb3-383"><a href="#cb3-383" aria-hidden="true" tabindex="-1"></a>  = \frac{1}{n}\sum_{k=-(n-1)}^{n-1}<span class="sc">\!</span>\left(1 - \frac{|k|}{n}\right)\gamma_k.</span>
+<span id="cb3-384"><a href="#cb3-384" aria-hidden="true" tabindex="-1"></a>  \qquad\blacksquare</span>
+<span id="cb3-385"><a href="#cb3-385" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-386"><a href="#cb3-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-387"><a href="#cb3-387" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-388"><a href="#cb3-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-389"><a href="#cb3-389" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.23 — Sum of Independent Stationary Processes</span></span>
+<span id="cb3-390"><a href="#cb3-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-391"><a href="#cb3-391" aria-hidden="true" tabindex="-1"></a>**Given.** $<span class="sc">\{</span>Z_t<span class="sc">\}</span>$ and $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ are independent stationary processes</span>
+<span id="cb3-392"><a href="#cb3-392" aria-hidden="true" tabindex="-1"></a>with means $\mu_Z$, $\mu_Y$ and autocovariances $\gamma_k^Z$, $\gamma_k^Y$.</span>
+<span id="cb3-393"><a href="#cb3-393" aria-hidden="true" tabindex="-1"></a>Define $W_t = Z_t + Y_t$.</span>
+<span id="cb3-394"><a href="#cb3-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-395"><a href="#cb3-395" aria-hidden="true" tabindex="-1"></a>**Mean.**</span>
+<span id="cb3-396"><a href="#cb3-396" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-397"><a href="#cb3-397" aria-hidden="true" tabindex="-1"></a>E(W_t) = \mu_Z + \mu_Y = \text{constant}.</span>
+<span id="cb3-398"><a href="#cb3-398" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-399"><a href="#cb3-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-400"><a href="#cb3-400" aria-hidden="true" tabindex="-1"></a>**Autocovariance.**</span>
+<span id="cb3-401"><a href="#cb3-401" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-402"><a href="#cb3-402" aria-hidden="true" tabindex="-1"></a>\operatorname{Cov}(W_t, W_{t-k})</span>
+<span id="cb3-403"><a href="#cb3-403" aria-hidden="true" tabindex="-1"></a>  = \operatorname{Cov}(Z_t, Z_{t-k})</span>
+<span id="cb3-404"><a href="#cb3-404" aria-hidden="true" tabindex="-1"></a><span class="ss">  + </span>\underbrace{\operatorname{Cov}(Z_t, Y_{t-k})}_{= 0}</span>
+<span id="cb3-405"><a href="#cb3-405" aria-hidden="true" tabindex="-1"></a><span class="ss">  + </span>\underbrace{\operatorname{Cov}(Y_t, Z_{t-k})}_{= 0}</span>
+<span id="cb3-406"><a href="#cb3-406" aria-hidden="true" tabindex="-1"></a><span class="ss">  + </span>\operatorname{Cov}(Y_t, Y_{t-k})</span>
+<span id="cb3-407"><a href="#cb3-407" aria-hidden="true" tabindex="-1"></a>  = \gamma_k^Z + \gamma_k^Y.</span>
+<span id="cb3-408"><a href="#cb3-408" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-409"><a href="#cb3-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-410"><a href="#cb3-410" aria-hidden="true" tabindex="-1"></a>The cross-covariance terms vanish by independence. The resulting autocovariance</span>
+<span id="cb3-411"><a href="#cb3-411" aria-hidden="true" tabindex="-1"></a>depends only on $k$, so $<span class="sc">\{</span>W_t<span class="sc">\}</span>$ is **stationary**. $\blacksquare$</span>
+<span id="cb3-412"><a href="#cb3-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-413"><a href="#cb3-413" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-414"><a href="#cb3-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-415"><a href="#cb3-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.26 — Semivariogram and Intrinsic Stationarity</span></span>
+<span id="cb3-416"><a href="#cb3-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-417"><a href="#cb3-417" aria-hidden="true" tabindex="-1"></a>**Definition.** The *semivariogram* of a process $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is</span>
+<span id="cb3-418"><a href="#cb3-418" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-419"><a href="#cb3-419" aria-hidden="true" tabindex="-1"></a>\Gamma(t, s) = \tfrac{1}{2}\,E<span class="sc">\!</span>\bigl<span class="co">[</span><span class="ot">(Y_t - Y_s)^2\bigr</span><span class="co">]</span>.</span>
+<span id="cb3-420"><a href="#cb3-420" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-421"><a href="#cb3-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-422"><a href="#cb3-422" aria-hidden="true" tabindex="-1"></a>A process is called **intrinsically stationary** if $\Gamma(t, s)$ depends only</span>
+<span id="cb3-423"><a href="#cb3-423" aria-hidden="true" tabindex="-1"></a>on the time difference $|t - s|$.</span>
+<span id="cb3-424"><a href="#cb3-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-425"><a href="#cb3-425" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): Stationary process</span></span>
+<span id="cb3-426"><a href="#cb3-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-427"><a href="#cb3-427" aria-hidden="true" tabindex="-1"></a>For a covariance-stationary process with mean $\mu$ and autocovariance $\gamma_k$:</span>
+<span id="cb3-428"><a href="#cb3-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-429"><a href="#cb3-429" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-430"><a href="#cb3-430" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb3-431"><a href="#cb3-431" aria-hidden="true" tabindex="-1"></a>2\,\Gamma(t, s)</span>
+<span id="cb3-432"><a href="#cb3-432" aria-hidden="true" tabindex="-1"></a>  &amp;= E<span class="sc">\!</span>\bigl<span class="co">[</span><span class="ot">(Y_t - Y_s)^2\bigr</span><span class="co">]</span> <span class="sc">\\</span></span>
+<span id="cb3-433"><a href="#cb3-433" aria-hidden="true" tabindex="-1"></a>  &amp;= E(Y_t^2) - 2\,E(Y_t Y_s) + E(Y_s^2) <span class="sc">\\</span></span>
+<span id="cb3-434"><a href="#cb3-434" aria-hidden="true" tabindex="-1"></a>  &amp;= (\gamma_0 + \mu^2) - 2(\gamma_{|t-s|} + \mu^2) + (\gamma_0 + \mu^2) <span class="sc">\\</span></span>
+<span id="cb3-435"><a href="#cb3-435" aria-hidden="true" tabindex="-1"></a>  &amp;= 2\gamma_0 - 2\gamma_{|t-s|}.</span>
+<span id="cb3-436"><a href="#cb3-436" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb3-437"><a href="#cb3-437" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-438"><a href="#cb3-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-439"><a href="#cb3-439" aria-hidden="true" tabindex="-1"></a>Therefore</span>
+<span id="cb3-440"><a href="#cb3-440" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-441"><a href="#cb3-441" aria-hidden="true" tabindex="-1"></a>\Gamma(t, s) = \gamma_0 - \gamma_{|t-s|}. \qquad\blacksquare</span>
+<span id="cb3-442"><a href="#cb3-442" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-443"><a href="#cb3-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-444"><a href="#cb3-444" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): Random walk</span></span>
+<span id="cb3-445"><a href="#cb3-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-446"><a href="#cb3-446" aria-hidden="true" tabindex="-1"></a>Let $Y_t = \sum_{j=1}^{t} e_j$ with $Y_0 = 0$. For $t &gt; s$,</span>
+<span id="cb3-447"><a href="#cb3-447" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-448"><a href="#cb3-448" aria-hidden="true" tabindex="-1"></a>Y_t - Y_s = \sum_{j=s+1}^{t} e_j,</span>
+<span id="cb3-449"><a href="#cb3-449" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-450"><a href="#cb3-450" aria-hidden="true" tabindex="-1"></a>which is a sum of $t - s$ independent terms. Hence</span>
+<span id="cb3-451"><a href="#cb3-451" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-452"><a href="#cb3-452" aria-hidden="true" tabindex="-1"></a>\Gamma(t, s)</span>
+<span id="cb3-453"><a href="#cb3-453" aria-hidden="true" tabindex="-1"></a>  = \tfrac{1}{2}\,\operatorname{Var}<span class="sc">\!</span>\left(\sum_{j=s+1}^{t} e_j\right)</span>
+<span id="cb3-454"><a href="#cb3-454" aria-hidden="true" tabindex="-1"></a>  = \tfrac{1}{2}(t - s)\sigma_e^2.</span>
+<span id="cb3-455"><a href="#cb3-455" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-456"><a href="#cb3-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-457"><a href="#cb3-457" aria-hidden="true" tabindex="-1"></a>This depends only on $|t - s|$, so the random walk is **intrinsically stationary**.</span>
+<span id="cb3-458"><a href="#cb3-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-459"><a href="#cb3-459" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb3-460"><a href="#cb3-460" aria-hidden="true" tabindex="-1"></a>The random walk is *not* covariance-stationary because</span>
+<span id="cb3-461"><a href="#cb3-461" aria-hidden="true" tabindex="-1"></a>$\operatorname{Var}(Y_t) = t\sigma_e^2$ grows without bound.</span>
+<span id="cb3-462"><a href="#cb3-462" aria-hidden="true" tabindex="-1"></a>Intrinsic stationarity is a strictly weaker condition.</span>
+<span id="cb3-463"><a href="#cb3-463" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-464"><a href="#cb3-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-465"><a href="#cb3-465" aria-hidden="true" tabindex="-1"></a>$\blacksquare$</span>
+<span id="cb3-466"><a href="#cb3-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-467"><a href="#cb3-467" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-468"><a href="#cb3-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-469"><a href="#cb3-469" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2.27 — Finite Moving-Average Process</span></span>
+<span id="cb3-470"><a href="#cb3-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-471"><a href="#cb3-471" aria-hidden="true" tabindex="-1"></a>**Given.** For a fixed positive integer $r$ and constant $\phi$, define</span>
+<span id="cb3-472"><a href="#cb3-472" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-473"><a href="#cb3-473" aria-hidden="true" tabindex="-1"></a>Y_t = \sum_{j=0}^{r} \phi^j\, e_{t-j}</span>
+<span id="cb3-474"><a href="#cb3-474" aria-hidden="true" tabindex="-1"></a>    = e_t + \phi e_{t-1} + \phi^2 e_{t-2} + \cdots + \phi^r e_{t-r}.</span>
+<span id="cb3-475"><a href="#cb3-475" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-476"><a href="#cb3-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-477"><a href="#cb3-477" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (a): Stationarity for any $\phi$</span></span>
+<span id="cb3-478"><a href="#cb3-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-479"><a href="#cb3-479" aria-hidden="true" tabindex="-1"></a>**Mean.**</span>
+<span id="cb3-480"><a href="#cb3-480" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-481"><a href="#cb3-481" aria-hidden="true" tabindex="-1"></a>E(Y_t) = \sum_{j=0}^{r} \phi^j\, E(e_{t-j}) = 0.</span>
+<span id="cb3-482"><a href="#cb3-482" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-483"><a href="#cb3-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-484"><a href="#cb3-484" aria-hidden="true" tabindex="-1"></a>**Autocovariance.** By bilinearity and white-noise uncorrelatedness:</span>
+<span id="cb3-485"><a href="#cb3-485" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-486"><a href="#cb3-486" aria-hidden="true" tabindex="-1"></a>\gamma_k</span>
+<span id="cb3-487"><a href="#cb3-487" aria-hidden="true" tabindex="-1"></a>  = \operatorname{Cov}(Y_t, Y_{t-k})</span>
+<span id="cb3-488"><a href="#cb3-488" aria-hidden="true" tabindex="-1"></a>  = \sum_{i=0}^{r}\sum_{j=0}^{r} \phi^{i+j}\, \operatorname{Cov}(e_{t-i},\, e_{t-k-j}).</span>
+<span id="cb3-489"><a href="#cb3-489" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-490"><a href="#cb3-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-491"><a href="#cb3-491" aria-hidden="true" tabindex="-1"></a>The term $\operatorname{Cov}(e_{t-i}, e_{t-k-j}) = \sigma_e^2$ only when $i = k + j$.</span>
+<span id="cb3-492"><a href="#cb3-492" aria-hidden="true" tabindex="-1"></a>Substituting:</span>
+<span id="cb3-493"><a href="#cb3-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-494"><a href="#cb3-494" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-495"><a href="#cb3-495" aria-hidden="true" tabindex="-1"></a>\gamma_k = \sigma_e^2 \sum_{j=0}^{r-k} \phi^{k+2j}</span>
+<span id="cb3-496"><a href="#cb3-496" aria-hidden="true" tabindex="-1"></a>         = \sigma_e^2\,\phi^k \sum_{j=0}^{r-k} \phi^{2j},</span>
+<span id="cb3-497"><a href="#cb3-497" aria-hidden="true" tabindex="-1"></a>\qquad 0 \leq k \leq r,</span>
+<span id="cb3-498"><a href="#cb3-498" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-499"><a href="#cb3-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-500"><a href="#cb3-500" aria-hidden="true" tabindex="-1"></a>and $\gamma_k = 0$ for $|k| &gt; r$. In both cases $\gamma_k$ depends only on $k$,</span>
+<span id="cb3-501"><a href="#cb3-501" aria-hidden="true" tabindex="-1"></a>not on $t$. Hence $<span class="sc">\{</span>Y_t<span class="sc">\}</span>$ is **stationary for any $\phi$**. $\blacksquare$</span>
+<span id="cb3-502"><a href="#cb3-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-503"><a href="#cb3-503" aria-hidden="true" tabindex="-1"></a><span class="fu">### Part (b): Autocorrelation function</span></span>
+<span id="cb3-504"><a href="#cb3-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-505"><a href="#cb3-505" aria-hidden="true" tabindex="-1"></a>Using the geometric series formula ($\phi \neq \pm 1$):</span>
+<span id="cb3-506"><a href="#cb3-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-507"><a href="#cb3-507" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-508"><a href="#cb3-508" aria-hidden="true" tabindex="-1"></a>\gamma_0 = \sigma_e^2 \sum_{j=0}^{r} \phi^{2j}</span>
+<span id="cb3-509"><a href="#cb3-509" aria-hidden="true" tabindex="-1"></a>         = \sigma_e^2\,\frac{1 - \phi^{2(r+1)}}{1 - \phi^2}.</span>
+<span id="cb3-510"><a href="#cb3-510" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-511"><a href="#cb3-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-512"><a href="#cb3-512" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-513"><a href="#cb3-513" aria-hidden="true" tabindex="-1"></a>\gamma_k = \sigma_e^2\,\phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^2},</span>
+<span id="cb3-514"><a href="#cb3-514" aria-hidden="true" tabindex="-1"></a>\qquad 0 \leq k \leq r.</span>
+<span id="cb3-515"><a href="#cb3-515" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-516"><a href="#cb3-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-517"><a href="#cb3-517" aria-hidden="true" tabindex="-1"></a>Therefore, the ACF is</span>
+<span id="cb3-518"><a href="#cb3-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-519"><a href="#cb3-519" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-520"><a href="#cb3-520" aria-hidden="true" tabindex="-1"></a>\rho_k = \frac{\gamma_k}{\gamma_0}</span>
+<span id="cb3-521"><a href="#cb3-521" aria-hidden="true" tabindex="-1"></a>       = \phi^k\,\frac{1 - \phi^{2(r-k+1)}}{1 - \phi^{2(r+1)}},</span>
+<span id="cb3-522"><a href="#cb3-522" aria-hidden="true" tabindex="-1"></a>\qquad 0 \leq k \leq r,</span>
+<span id="cb3-523"><a href="#cb3-523" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-524"><a href="#cb3-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-525"><a href="#cb3-525" aria-hidden="true" tabindex="-1"></a>and $\rho_k = 0$ for $|k| &gt; r$. The ACF has a **finite cutoff** at lag $r$.</span>
+<span id="cb3-526"><a href="#cb3-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-529"><a href="#cb3-529" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb3-530"><a href="#cb3-530" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ex2-27-acf</span></span>
+<span id="cb3-531"><a href="#cb3-531" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Theoretical vs. sample ACF for the finite MA process (r = 4, φ = 0.7, n = 1000)"</span></span>
+<span id="cb3-532"><a href="#cb3-532" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb3-533"><a href="#cb3-533" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb3-534"><a href="#cb3-534" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-535"><a href="#cb3-535" aria-hidden="true" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fl">0.7</span>; r <span class="ot">&lt;-</span> <span class="dv">4</span>; n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb3-536"><a href="#cb3-536" aria-hidden="true" tabindex="-1"></a>e   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n <span class="sc">+</span> r)</span>
+<span id="cb3-537"><a href="#cb3-537" aria-hidden="true" tabindex="-1"></a>Y   <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">"+"</span>, <span class="fu">lapply</span>(<span class="dv">0</span><span class="sc">:</span>r, \(j) phi<span class="sc">^</span>j <span class="sc">*</span> e[(r <span class="sc">-</span> j <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(n <span class="sc">+</span> r <span class="sc">-</span> j)]))</span>
+<span id="cb3-538"><a href="#cb3-538" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-539"><a href="#cb3-539" aria-hidden="true" tabindex="-1"></a><span class="co"># Theoretical ACF</span></span>
+<span id="cb3-540"><a href="#cb3-540" aria-hidden="true" tabindex="-1"></a>rho_theory <span class="ot">&lt;-</span> <span class="cf">function</span>(k, phi, r) {</span>
+<span id="cb3-541"><a href="#cb3-541" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">abs</span>(k) <span class="sc">&gt;</span> r) <span class="fu">return</span>(<span class="dv">0</span>)</span>
+<span id="cb3-542"><a href="#cb3-542" aria-hidden="true" tabindex="-1"></a>  phi<span class="sc">^</span>k <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> phi<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>(r <span class="sc">-</span> k <span class="sc">+</span> <span class="dv">1</span>))) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> phi<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>(r <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb3-543"><a href="#cb3-543" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-544"><a href="#cb3-544" aria-hidden="true" tabindex="-1"></a>lags <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb3-545"><a href="#cb3-545" aria-hidden="true" tabindex="-1"></a>rho_th <span class="ot">&lt;-</span> <span class="fu">sapply</span>(lags, rho_theory, <span class="at">phi =</span> phi, <span class="at">r =</span> r)</span>
+<span id="cb3-546"><a href="#cb3-546" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-547"><a href="#cb3-547" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb3-548"><a href="#cb3-548" aria-hidden="true" tabindex="-1"></a>acf_obj <span class="ot">&lt;-</span> <span class="fu">acf</span>(Y, <span class="at">lag.max =</span> <span class="dv">10</span>, <span class="at">plot =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-549"><a href="#cb3-549" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acf_obj, <span class="at">main =</span> <span class="st">""</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.2</span>, <span class="fl">1.1</span>),</span>
+<span id="cb3-550"><a href="#cb3-550" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Lag"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(rho[k]))</span>
+<span id="cb3-551"><a href="#cb3-551" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(lags, rho_th, <span class="at">col =</span> <span class="st">"firebrick"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb3-552"><a href="#cb3-552" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Sample ACF"</span>, <span class="st">"Theoretical"</span>),</span>
+<span id="cb3-553"><a href="#cb3-553" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"firebrick"</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">19</span>),</span>
+<span id="cb3-554"><a href="#cb3-554" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">cex =</span> <span class="fl">0.85</span>)</span>
+<span id="cb3-555"><a href="#cb3-555" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="at">main =</span> <span class="fu">bquote</span>(phi <span class="sc">==</span> .(phi) <span class="sc">~</span> <span class="st">","</span> <span class="sc">~</span> r <span class="sc">==</span> .(r)))</span>
+<span id="cb3-556"><a href="#cb3-556" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-557"><a href="#cb3-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-558"><a href="#cb3-558" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-559"><a href="#cb3-559" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-560"><a href="#cb3-560" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb3-561"><a href="#cb3-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-562"><a href="#cb3-562" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Exercise <span class="pp">|</span> Process <span class="pp">|</span> Stationary? <span class="pp">|</span> Key result <span class="pp">|</span></span>
+<span id="cb3-563"><a href="#cb3-563" aria-hidden="true" tabindex="-1"></a><span class="pp">|:---:|---|:---:|---|</span></span>
+<span id="cb3-564"><a href="#cb3-564" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.4 <span class="pp">|</span> $e_t + \theta e_{t-1}$ <span class="pp">|</span> Yes <span class="pp">|</span> $\rho_1 = \theta/(1+\theta^2)$; $\theta=3$ and $\theta=1/3$ are indistinguishable <span class="pp">|</span></span>
+<span id="cb3-565"><a href="#cb3-565" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.5 <span class="pp">|</span> $5 + 2t + X_t$ <span class="pp">|</span> No <span class="pp">|</span> Mean $\mu_t = 5+2t$ depends on $t$ <span class="pp">|</span></span>
+<span id="cb3-566"><a href="#cb3-566" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.8 <span class="pp">|</span> $\sum c_j Y_{t-j+1}$ <span class="pp">|</span> Yes <span class="pp">|</span> Any finite linear filter of a stationary process is stationary <span class="pp">|</span></span>
+<span id="cb3-567"><a href="#cb3-567" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.9 <span class="pp">|</span> $\beta_0 + \beta_1 t + X_t$ <span class="pp">|</span> No / Yes after $\nabla$ <span class="pp">|</span> $\nabla^m Y_t$ stationary $\iff m \geq d$ <span class="pp">|</span></span>
+<span id="cb3-568"><a href="#cb3-568" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.12 <span class="pp">|</span> $e_t - e_{t-12}$ <span class="pp">|</span> Yes <span class="pp">|</span> $\rho_{12} = -1/2$; all other lags zero <span class="pp">|</span></span>
+<span id="cb3-569"><a href="#cb3-569" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.14a <span class="pp">|</span> $\theta_0 + t e_t$ <span class="pp">|</span> No <span class="pp">|</span> $\operatorname{Var}(Y_t) = t^2\sigma_e^2$ <span class="pp">|</span></span>
+<span id="cb3-570"><a href="#cb3-570" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.14b <span class="pp">|</span> $\nabla(\theta_0 + t e_t)$ <span class="pp">|</span> No <span class="pp">|</span> $\operatorname{Var}(W_t)$ still depends on $t$ <span class="pp">|</span></span>
+<span id="cb3-571"><a href="#cb3-571" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.14c <span class="pp">|</span> $e_t e_{t-1}$ <span class="pp">|</span> Yes <span class="pp">|</span> $\gamma_k = 0$ for $k \geq 1$; white-noise-like ACF <span class="pp">|</span></span>
+<span id="cb3-572"><a href="#cb3-572" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.17 <span class="pp">|</span> $\bar{Y}$ <span class="pp">|</span> — <span class="pp">|</span> $\operatorname{Var}(\bar{Y}) = n^{-1}\sum_{k}(1-<span class="pp">|</span>k<span class="pp">|</span>/n)\gamma_k$ <span class="pp">|</span></span>
+<span id="cb3-573"><a href="#cb3-573" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.23 <span class="pp">|</span> $Z_t + Y_t$ (independent) <span class="pp">|</span> Yes <span class="pp">|</span> $\gamma_k^W = \gamma_k^Z + \gamma_k^Y$ <span class="pp">|</span></span>
+<span id="cb3-574"><a href="#cb3-574" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.26 <span class="pp">|</span> Semivariogram <span class="pp">|</span> — <span class="pp">|</span> $\Gamma(t,s) = \gamma_0 - \gamma_{<span class="pp">|</span>t-s<span class="pp">|</span>}$; random walk intrinsically stationary <span class="pp">|</span></span>
+<span id="cb3-575"><a href="#cb3-575" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.27 <span class="pp">|</span> $\sum_{j=0}^r \phi^j e_{t-j}$ <span class="pp">|</span> Yes <span class="pp">|</span> ACF cuts off at lag $r$; valid for any $\phi$ <span class="pp">|</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
