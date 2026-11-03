@@ -28,6 +28,13 @@ jobs:
             any::knitr
             any::rmarkdown
             any::TSA
+            any::tidyverse
+            any::forecast
+            any::tseries
+            any::lubridate
+            any::zoo
+            any::plotly
+            any::ggplot2
 
       - name: Render site
         run: quarto render

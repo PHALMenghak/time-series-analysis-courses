@@ -1,4 +1,4 @@
-required <- c("knitr", "rmarkdown", "TSA", "forecast", "tseries", "tidyverse", "lubridate", "plotly")
+required <- c("knitr", "rmarkdown", "TSA", "forecast", "tseries", "tidyverse", "lubridate", "plotly", "zoo", "ggplot2")
 missing <- setdiff(required, rownames(installed.packages()))
 
 if (length(missing) > 0L) {
